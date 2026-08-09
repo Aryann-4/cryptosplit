@@ -1,0 +1,202 @@
+// SplitBill — a group-expense contract for Midnight.
+//
+// Flow:
+//   1. Organizer deploys the contract with the total bill amount, the token
+//      to collect it in, and the address that should receive the pooled
+//      funds once everyone has paid (e.g. the friend who covered the tab).
+//   2. Organizer registers each participant with the share they owe. Shares
+//      can be equal (total / N) or fully custom (e.g. "Sam had the steak"),
+//      because the split rule is computed off-chain and only the resulting
+//      amounts are enforced on-chain — the sum of shares must equal the
+//      total bill.
+//   3. Organizer locks the participant list with finalizeSetup.
+//   4. Each participant calls deposit with their own secret (proving they
+//      are a registered participant without revealing who they are on
+//      chain) and sends their share. Partial/installment deposits are
+//      allowed as long as they never exceed the assigned share.
+//   5. Once every share is fully paid, the bill auto-flips to FUNDED and
+//      anyone can call settle to sweep the pooled funds to the recipient
+//      in a single transfer.
+//   6. If the organizer cancels before settlement, participants can pull
+//      back whatever they already deposited via withdraw.
+//
+// Identity model: participants never appear on-chain by wallet address.
+// Each participant is identified only by participantId = hash(domain,
+// secret) — the organizer registers that commitment (typically after
+// agreeing shares with the group in chat, where secrets can be exchanged
+// out of band), and from then on every deposit/withdraw call re-derives the
+// commitment from the caller-supplied secret to authorize itself. Nothing
+// but the commitment ever touches the public ledger — the same
+// commit-and-reveal pattern the bulletin board tutorial uses for its
+// `owner` field.
+
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+export enum BillStatus {
+  SETUP,       // organizer is registering participants and shares
+  COLLECTING,  // participant list is locked; deposits are open
+  FUNDED,      // total amount fully collected; ready to settle
+  SETTLED,     // funds have been swept to the recipient
+  CANCELLED    // organizer cancelled before settlement; refunds are open
+}
+
+// --- Public ledger state -----------------------------------------------
+
+export ledger status: BillStatus;
+export ledger organizer: Bytes<32>;        // commitment to the organizer's secret
+export ledger recipient: UserAddress;      // who gets paid out on settle()
+export ledger tokenColor: Bytes<32>;       // unshielded token color collected/paid
+export ledger totalAmount: Uint<128>;      // total bill amount
+export ledger totalOwed: Uint<128>;        // sum of shares assigned so far
+export ledger totalDeposited: Uint<128>;   // sum of all deposits received so far
+export ledger participantCount: Counter;   // how many participants are registered
+
+export ledger owed: Map<Bytes<32>, Uint<128>>;      // participantId -> share owed
+export ledger deposited: Map<Bytes<32>, Uint<128>>; // participantId -> amount paid so far
+
+// --- Constructor ---------------------------------------------------------
+
+constructor(
+  organizerSecret: Bytes<32>,
+  billRecipient: UserAddress,
+  color: Bytes<32>,
+  total: Uint<128>
+) {
+  organizer = disclose(deriveId(organizerSecret, pad(32, "splitbill:organizer:v1")));
+  recipient = disclose(billRecipient);
+  tokenColor = disclose(color);
+  totalAmount = disclose(total);
+  totalOwed = 0;
+  totalDeposited = 0;
+  status = BillStatus.SETUP;
+}
+
+// --- Identity helpers ------------------------------------------------------
+
+// Domain-separated commitment used both for the organizer's auth check and
+// for deriving a participant's public identity from their private secret.
+export circuit deriveId(secret: Bytes<32>, domain: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([domain, secret]);
+}
+
+// Callable off-chain (no transaction needed, pure computation): a
+// participant runs this locally with a secret only they know, and shares
+// only the resulting Bytes<32> with the organizer for registration.
+export circuit participantId(participantSecret: Bytes<32>): Bytes<32> {
+  return deriveId(participantSecret, pad(32, "splitbill:participant:v1"));
+}
+
+// --- Organizer setup circuits ----------------------------------------------
+
+export circuit addParticipant(
+  organizerSecret: Bytes<32>,
+  participantSecret: Bytes<32>,
+  share: Uint<128>
+): [] {
+  assert(status == BillStatus.SETUP, "bill is no longer accepting participants");
+  assert(
+    organizer == deriveId(organizerSecret, pad(32, "splitbill:organizer:v1")),
+    "not authorized to add participants"
+  );
+
+  const pid = disclose(participantId(participantSecret));
+  assert(!owed.member(pid), "participant already registered");
+
+  owed.insert(disclose(pid), disclose(share));
+  deposited.insert(disclose(pid), 0);
+  totalOwed = disclose((totalOwed + share) as Uint<128>);
+  participantCount.increment(1);
+}
+
+export circuit finalizeSetup(organizerSecret: Bytes<32>): [] {
+  assert(status == BillStatus.SETUP, "bill has already been finalized");
+  assert(
+    organizer == deriveId(organizerSecret, pad(32, "splitbill:organizer:v1")),
+    "not authorized to finalize this bill"
+  );
+  assert(
+    totalOwed == totalAmount,
+    "assigned shares must add up to the total bill amount"
+  );
+  status = BillStatus.COLLECTING;
+}
+
+export circuit cancel(organizerSecret: Bytes<32>): [] {
+  assert(
+    status == BillStatus.SETUP || status == BillStatus.COLLECTING,
+    "only an unsettled bill can be cancelled"
+  );
+  assert(
+    organizer == deriveId(organizerSecret, pad(32, "splitbill:organizer:v1")),
+    "not authorized to cancel this bill"
+  );
+  status = BillStatus.CANCELLED;
+}
+
+// --- Participant circuits ---------------------------------------------------
+
+// Deposit (all or part of) your assigned share. Anyone who can reproduce a
+// registered participantId by supplying its secret may call this — the bill
+// contract never learns the participant's wallet identity, only that they
+// hold a valid registered secret.
+export circuit deposit(participantSecret: Bytes<32>, amount: Uint<128>): [] {
+  assert(status == BillStatus.COLLECTING, "bill is not currently collecting deposits");
+
+  const pid = disclose(participantId(participantSecret));
+  assert(owed.member(pid), "secret does not match a registered participant");
+
+  const owedShare = owed.lookup(pid);
+  const paidSoFar = deposited.lookup(pid);
+  const newPaid = (paidSoFar + amount) as Uint<128>;
+  assert(newPaid <= owedShare, "deposit would exceed your assigned share");
+
+  // Pull the tokens from the caller's transaction into the contract.
+  receiveUnshielded(tokenColor, disclose(amount));
+
+  deposited.insert(disclose(pid), disclose(newPaid));
+  totalDeposited = disclose((totalDeposited + amount) as Uint<128>);
+
+  if (totalDeposited == totalAmount) {
+    status = BillStatus.FUNDED;
+  }
+}
+
+// Refund your own deposit after the organizer cancels the bill. You choose
+// where the refund goes — naturally your own wallet, since it's your money.
+export circuit withdraw(participantSecret: Bytes<32>, refundTo: UserAddress): [] {
+  assert(status == BillStatus.CANCELLED, "bill has not been cancelled");
+
+  const pid = disclose(participantId(participantSecret));
+  assert(owed.member(pid), "secret does not match a registered participant");
+
+  const refundAmount = deposited.lookup(pid);
+  assert(refundAmount > 0, "nothing to withdraw");
+
+  deposited.insert(disclose(pid), 0);
+  totalDeposited = disclose((totalDeposited - refundAmount) as Uint<128>);
+
+  sendUnshielded(
+    tokenColor,
+    disclose(refundAmount),
+    right<ContractAddress, UserAddress>(disclose(refundTo))
+  );
+}
+
+// --- Settlement --------------------------------------------------------------
+
+// Anyone may trigger settlement once the bill is fully funded — it always
+// pays out to the fixed `recipient` set at deployment, so there's nothing to
+// gain by calling it early or for someone else.
+export circuit settle(): [] {
+  assert(status == BillStatus.FUNDED, "bill is not fully funded yet");
+
+  sendUnshielded(
+    tokenColor,
+    totalAmount,
+    right<ContractAddress, UserAddress>(recipient)
+  );
+
+  status = BillStatus.SETTLED;
+}

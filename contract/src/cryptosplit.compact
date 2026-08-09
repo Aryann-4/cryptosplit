@@ -1,0 +1,127 @@
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+export ledger organizer: Bytes<32>;
+export ledger members: Map<Bytes<32>, Uint<128>>;
+export ledger memberCount: Counter;
+export ledger netDebts: Map<Bytes<32>, Uint<128>>;
+export ledger tokenColor: Bytes<32>;
+
+constructor(
+  organizerSecret: Bytes<32>,
+  color: Bytes<32>
+) {
+  organizer = disclose(deriveId(organizerSecret, pad(32, "cryptosplit:organizer:v1")));
+  tokenColor = disclose(color);
+}
+
+export circuit deriveId(secret: Bytes<32>, domain: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([domain, secret]);
+}
+
+export circuit memberId(secret: Bytes<32>): Bytes<32> {
+  return deriveId(secret, pad(32, "cryptosplit:member:v1"));
+}
+
+export circuit debtKey(debtorId: Bytes<32>, creditorId: Bytes<32>): Bytes<32> {
+  const step1 = persistentHash<Vector<2, Bytes<32>>>(
+    [pad(32, "cryptosplit:debt:v1"), debtorId]
+  );
+  return persistentHash<Vector<2, Bytes<32>>>([step1, creditorId]);
+}
+
+export circuit addMember(organizerSecret: Bytes<32>, memberSecret: Bytes<32>): [] {
+  assert(
+    organizer == deriveId(organizerSecret, pad(32, "cryptosplit:organizer:v1")),
+    "not authorized to add members"
+  );
+
+  const mid = disclose(memberId(memberSecret));
+  assert(!members.member(mid), "member already registered");
+
+  members.insert(disclose(mid), disclose(1));
+  memberCount.increment(1);
+}
+
+export circuit removeMember(organizerSecret: Bytes<32>, targetMemberId: Bytes<32>): [] {
+  assert(
+    organizer == deriveId(organizerSecret, pad(32, "cryptosplit:organizer:v1")),
+    "not authorized to remove members"
+  );
+  const tid = disclose(targetMemberId);
+  assert(members.member(tid), "member not found");
+  assert(members.lookup(tid) == 1, "member already removed");
+
+  members.insert(disclose(tid), disclose(2));
+}
+
+export circuit setNetDebt(
+  organizerSecret: Bytes<32>,
+  debtorId: Bytes<32>,
+  creditorId: Bytes<32>,
+  amount: Uint<128>
+): [] {
+  assert(
+    organizer == deriveId(organizerSecret, pad(32, "cryptosplit:organizer:v1")),
+    "not authorized to set debts"
+  );
+  const did = disclose(debtorId);
+  const cid = disclose(creditorId);
+  assert(members.member(did), "debtor not a member");
+  assert(members.lookup(did) == 1, "debtor not active");
+  assert(members.member(cid), "creditor not a member");
+  assert(members.lookup(cid) == 1, "creditor not active");
+  assert(did != cid, "cannot owe yourself");
+
+  const key = disclose(debtKey(did, cid));
+  netDebts.insert(disclose(key), disclose(amount));
+}
+
+export circuit settle(
+  debtorSecret: Bytes<32>,
+  creditorId: Bytes<32>,
+  amount: Uint<128>,
+  creditorAddress: UserAddress
+): [] {
+  const did = disclose(memberId(debtorSecret));
+  const cid = disclose(creditorId);
+  assert(members.member(did), "not a member");
+  assert(members.lookup(did) == 1, "member not active");
+  assert(members.member(cid), "creditor not a member");
+  assert(members.lookup(cid) == 1, "creditor not active");
+  assert(did != cid, "cannot settle with yourself");
+
+  const key = disclose(debtKey(did, cid));
+  assert(netDebts.member(key), "no debt recorded");
+
+  const currentDebt = netDebts.lookup(key);
+  assert(currentDebt >= amount, "settling more than owed");
+
+  const newDebt = (currentDebt - amount) as Uint<128>;
+  netDebts.insert(disclose(key), disclose(newDebt));
+
+  receiveUnshielded(tokenColor, disclose(amount));
+
+  sendUnshielded(
+    tokenColor,
+    disclose(amount),
+    right<ContractAddress, UserAddress>(disclose(creditorAddress))
+  );
+}
+
+export circuit transferOrganizer(
+  organizerSecret: Bytes<32>,
+  newOrganizerSecret: Bytes<32>
+): [] {
+  assert(
+    organizer == deriveId(organizerSecret, pad(32, "cryptosplit:organizer:v1")),
+    "not authorized to transfer organizer role"
+  );
+
+  const newOrgId = disclose(deriveId(newOrganizerSecret, pad(32, "cryptosplit:organizer:v1")));
+  assert(members.member(newOrgId), "new organizer must be a member");
+  assert(members.lookup(newOrgId) == 1, "new organizer must be active");
+
+  organizer = disclose(newOrgId);
+}

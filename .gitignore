@@ -1,0 +1,13 @@
+node_modules/
+dist/
+contract/src/managed/
+*.log
+.DS_Store
+midnight-local-dev/node_modules/
+app/dist/
+*.env
+.envrc
+app/midnight-level-db/
+app/logs/
+midnight-local-dev/logs/
+midnight-local-dev/node_modules/

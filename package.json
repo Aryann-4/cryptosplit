@@ -1,0 +1,16 @@
+{
+  "name": "split-bill-dapp",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "contract",
+    "app"
+  ],
+  "scripts": {
+    "compact": "npm run compact --workspace=contract",
+    "build:contract": "npm run build --workspace=contract",
+    "dev": "npm run dev --workspace=app",
+    "build": "npm run build --workspace=app",
+    "demo": "npm run demo --workspace=app"
+  }
+}
