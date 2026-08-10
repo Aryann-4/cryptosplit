@@ -2,6 +2,11 @@ pragma language_version 0.23;
 
 import CompactStandardLibrary;
 
+// CryptoSplit: Privacy-preserving bill splitter on Midnight Network
+// Member identities are commitment hashes: memberId = hash(secret)
+// Debt relationships use domain-separated keys to prevent collision attacks
+// All expenses and wallet addresses remain off-chain (private witnesses)
+
 export ledger organizer: Bytes<32>;
 export ledger members: Map<Bytes<32>, Uint<128>>;
 export ledger memberCount: Counter;
