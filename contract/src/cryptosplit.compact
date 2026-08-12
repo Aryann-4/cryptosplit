@@ -42,6 +42,8 @@ export circuit addMember(organizerSecret: Bytes<32>, memberSecret: Bytes<32>): [
     "not authorized to add members"
   );
 
+  assert(memberSecret != pad(32, ""), "member secret cannot be empty");
+
   const mid = disclose(memberId(memberSecret));
   assert(!members.member(mid), "member already registered");
 
@@ -54,6 +56,7 @@ export circuit removeMember(organizerSecret: Bytes<32>, targetMemberId: Bytes<32
     organizer == deriveId(organizerSecret, pad(32, "cryptosplit:organizer:v1")),
     "not authorized to remove members"
   );
+  assert(targetMemberId != pad(32, ""), "target member ID cannot be empty");
   const tid = disclose(targetMemberId);
   assert(members.member(tid), "member not found");
   assert(members.lookup(tid) == 1, "member already removed");
