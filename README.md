@@ -1,140 +1,138 @@
-# SplitBill — a privacy-preserving split-the-bill dApp on Midnight
+# CryptoSplit — Decentralized Bill Splitter on Midnight
 
-A group of friends deposit their share of a bill into a smart contract; once
-everyone has paid, the pooled funds are automatically swept to whoever
-fronted the tab. Built with [Compact](https://docs.midnight.network/compact),
-Midnight's TypeScript-flavored smart contract language.
+A decentralized alternative to Splitwise. Track shared expenses, calculate net debts, and settle on-chain using Midnight's privacy-preserving smart contracts.
 
 ## How it works
 
 ```
-organizer                                    contract                         friends
-    │  deploy(total, recipient, token)           │                                │
-    ├─────────────────────────────────────────►  │  status = SETUP               │
-    │  addParticipant(friendSecret, share) x N    │                                │
-    ├─────────────────────────────────────────►  │  owed[pid] = share             │
-    │  finalizeSetup()                            │                                │
-    ├─────────────────────────────────────────►  │  status = COLLECTING           │
-    │                                             │        deposit(secret, amount)│
+organizer                                    contract                         members
+    │  deploy(organizerSecret, tokenColor)       │                                │
+    ├─────────────────────────────────────────►  │  members = {}                 │
+    │  addMember(organizerSecret, memberSecret)  │                                │
+    ├─────────────────────────────────────────►  │  members[mid] = 1             │
+    │                                             │                                │
+    │  [off-chain: log expenses, calc nets]       │                                │
+    │                                             │                                │
+    │  setNetDebt(organizerSecret, debtor,        │                                │
+    │             creditor, amount)               │                                │
+    ├─────────────────────────────────────────►  │  netDebts[key] = amount       │
+    │                                             │                                │
+    │                                             │  settle(debtorSecret,          │
+    │                                             │    creditorId, amount, addr)  │
     │                                             │  ◄─────────────────────────────┤
-    │                                             │  deposited[pid] += amount      │
-    │                                             │  (auto) status = FUNDED        │
-    │  settle()  [anyone may call]                │        when fully paid        │
-    ├─────────────────────────────────────────►  │  pays out to `recipient`       │
-    │                                             │  status = SETTLED              │
+    │                                             │  netDebts[key] -= amount      │
+    │                                             │  sendUnshielded → creditor    │
 ```
 
-**Privacy model.** No participant's wallet address ever appears on-chain.
-Each participant is tracked only by `participantId = hash(domain, secret)` —
-a commitment to a secret only they know. Registering and depositing both
-re-derive this commitment from a caller-supplied secret inside the ZK
-circuit, so the chain only ever sees "the holder of a valid secret paid
-their share," never who that is. The bill amount, split rule (equal or
-custom), and settlement recipient are the only things that are public.
+**Privacy model.** No wallet address ever appears on-chain. Members are tracked by `memberId = hash(secret, domain)` — a commitment to a secret only they know. The organizer can transfer rights via `transferOrganizer()`.
 
-**Splitting rules.** The contract enforces exactly one invariant: registered
-shares must sum to the total bill. How you arrive at each person's share —
-even split, "Sam had the steak," a tip weighted by order size — is computed
-off-chain (see `app/src/split.ts`) and only the resulting amounts are
-submitted on-chain.
+**Debt netting.** Expenses are calculated off-chain. The contract stores only net debts between pairs. If A owes B $20 and B owes A $10, only the net $10 appears on-chain.
 
-**Money movement.** Deposits and the final payout use Midnight's unshielded
-(transparent) token primitives — `receiveUnshielded` to pull each deposit
-into the contract, `sendUnshielded` to pay the recipient out in one
-transaction. The demo uses the native NIGHT token; swap in any
-contract-minted token by passing a different color to the constructor.
+**One-click settlement.** Debtors trigger a single `settle()` transaction. The contract pulls tokens from the debtor and sends them directly to the creditor's wallet.
+
+## Network Configuration
+
+| Network | Network ID | RPC Endpoint | Indexer | Indexer WS | Proof Server |
+|---------|-----------|--------------|---------|------------|--------------|
+| **Local** | `undeployed` | `http://127.0.0.1:9944` | `http://127.0.0.1:8088/api/v4/graphql` | `ws://127.0.0.1:8088/api/v4/graphql/ws` | `http://127.0.0.1:6300` |
+| **Preview** | `preview` | `https://rpc.preview.midnight.network` | `https://indexer.preview.midnight.network/api/v4/graphql` | `wss://indexer.preview.midnight.network/api/v4/graphql/ws` | Local (`http://127.0.0.1:6300`) |
+| **Preprod** | `preprod` | `https://rpc.preprod.midnight.network` | `https://indexer.preprod.midnight.network/api/v4/graphql` | `wss://indexer.preprod.midnight.network/api/v4/graphql/ws` | Local (`http://127.0.0.1:6300`) |
+
+**Faucets:**
+- **Preprod:** https://midnight-tmnight-preprod.nethermind.dev/
+- **Preview:** Check Midnight Discord for faucet access
+
+**Setting the network:**
+
+```bash
+export MIDNIGHT_NETWORK=local    # or preview, preprod
+```
+
+**Running a local proof server** (required for preview/preprod):
+
+```bash
+docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0
+```
 
 ## Project layout
 
 ```
 split-bill-dapp/
-├── contract/               # the Compact smart contract
+├── contract/                  # Compact smart contracts
 │   └── src/
-│       ├── splitbill.compact
-│       ├── witnesses.ts    # empty — this contract uses no witnesses
-│       └── index.ts        # compiled-contract wrapper
-└── app/                    # deploy script + off-chain helpers
-    └── src/
-        ├── config.ts       # local / preview / preprod network config
-        ├── wallet.ts        # wallet-sdk adapter
-        ├── providers.ts     # indexer/proof/zk-config provider set
-        ├── contract.ts      # wraps the compiled contract for deployment
-        ├── split.ts         # equal-split / custom-split helpers
-        └── demo.ts          # end-to-end walkthrough
+│       ├── cryptosplit.compact    # CryptoSplit: groups, debt tracking, settlement
+│       ├── splitbill.compact      # Original SplitBill (pot-based splitting)
+│       ├── witnesses.ts           # Witness types
+│       └── index.ts               # Compiled contract wrappers
+├── app/                       # React + Vite frontend
+│   └── src/
+│       ├── components/            # UI components
+│       ├── hooks/                 # React hooks
+│       ├── pages/                 # Home, Group pages
+│       ├── crypto.ts              # Identity derivation (matches contract)
+│       ├── store.ts               # Local state management
+│       ├── splitCalc.ts           # Net debt calculation
+│       └── types.ts               # Shared types
+└── midnight-local-dev/        # Docker-based local devnet
 ```
 
 ## Prerequisites
 
-- The **Compact toolchain** — see [Install the toolchain](https://docs.midnight.network/getting-started/installation). This targets compiler `0.31.x` / language version `0.23`.
 - **Node.js 22+**
-- **Docker** and Docker Compose v2 (for the local devnet + proof server)
+- **Compact toolchain** — see [Install the toolchain](https://docs.midnight.network/getting-started/installation)
+- **Docker** and Docker Compose v2 (for local devnet)
 
-## Set up a local devnet
+## Quick start (local devnet)
 
 ```bash
-git clone https://github.com/midnightntwrk/midnight-local-dev.git
+# 1. Start local devnet
 cd midnight-local-dev
 npm install
 npm start
+
+# 2. In another terminal — fund test accounts
+# Select option [1], enter ./accounts.json
+
+# 3. Build the frontend
+cd ../app
+npm install
+npm run dev
 ```
 
-Leave this running in its own terminal — it starts the node, indexer, and
-proof server, and funds a genesis wallet with NIGHT for you.
+Open http://localhost:3000, connect with a funded wallet, and start splitting bills.
 
 ## Build
 
-From the project root:
-
 ```bash
 npm install
-npm run compact        # compiles splitbill.compact -> contract/src/managed
-npm run build:contract # compiles the contract package's TypeScript
+npm run compact        # compile contracts
+npm run build:contract # build contract TypeScript
+npm run dev            # start dev server
 ```
 
-## Run the demo
+## CryptoSplit Contract Circuits
 
-```bash
-MIDNIGHT_NETWORK=local \
-MIDNIGHT_SEED=0000000000000000000000000000000000000000000000000000000000000001 \
-npm run demo --workspace=app
-```
+| Circuit | Caller | Arguments | Description |
+|---------|--------|-----------|-------------|
+| `addMember` | Organizer | `organizerSecret, memberSecret` | Register a new group member |
+| `removeMember` | Organizer | `organizerSecret, targetMemberId` | Deactivate a member |
+| `setNetDebt` | Organizer | `organizerSecret, debtorId, creditorId, amount` | Record net debt between two members |
+| `settle` | Debtor | `debtorSecret, creditorId, amount, creditorAddress` | Pay creditor, reduce debt |
+| `transferOrganizer` | Organizer | `organizerSecret, newOrganizerSecret` | Transfer organizer rights |
 
-That seed is the local devnet's pre-funded genesis wallet. The script:
+**Pure circuits (off-chain):**
 
-1. Deploys `SplitBill` for a 300-unit dinner bill.
-2. Registers three friends (Alex, Bri, Cass) on an equal 100/100/100 split.
-3. Locks the participant list.
-4. Has each friend deposit their share.
-5. Confirms the bill auto-flips to `FUNDED`, then settles it to the payer.
-6. Reads the payer's wallet balance back to confirm the payout landed.
+| Circuit | Arguments | Returns | Description |
+|---------|-----------|---------|-------------|
+| `deriveId` | `secret, domain` | `Bytes<32>` | Domain-separated identity derivation |
+| `memberId` | `secret` | `Bytes<32>` | Derive member commitment |
+| `debtKey` | `debtorId, creditorId` | `Bytes<32>` | Derive map key for debt pair |
 
-To run against the public **Preprod** testnet instead, set
-`MIDNIGHT_NETWORK=preprod`, generate a throwaway seed with
-`openssl rand -hex 32`, and fund the address the script prints at the
-[Preprod faucet](https://midnight-tmnight-preprod.nethermind.dev/) — the
-script waits for the funds and otherwise runs identically.
+## SDK versions
 
-## Extending this
+- Compact compiler: `0.31.x`
+- Compact language: `0.23`
+- SDK packages: `4.1.1`
+- Wallet SDK: `1.2.0`
 
-- **Custom splits.** Use `customSplit()` from `app/src/split.ts` instead of
-  `equalSplit()` and pass explicit per-person amounts to `addParticipant`.
-- **A real multi-wallet flow.** The demo drives every step from one wallet
-  for clarity. In production, each participant runs their own instance of
-  this app (or a web frontend built on the same `contract` package) against
-  their own wallet, and only ever needs the contract address plus their own
-  secret.
-- **A different token.** Mint your own contract token (see Midnight's
-  [unshielded token tutorial](https://docs.midnight.network/tokens/unshielded-token))
-  and pass its color instead of `unshieldedToken().raw` to the constructor.
-- **Deadlines.** Add a `blockTimeGte` check to `deposit`/`settle` if you want
-  the bill to auto-cancel after a due date.
-
-## Notes on this generated project
-
-This project was written against Midnight's Compact `0.23` language
-reference and the `4.1.1` / `1.0.0` SDK package versions documented as of
-this writing. Midnight is still evolving quickly — if `compact compile`
-reports a type or syntax mismatch, check the
-[Compact language reference](https://docs.midnight.network/develop/reference/compact/lang-ref)
-and [release notes](https://docs.midnight.network/relnotes/overview) for
-what's changed since.
+See [Compact language reference](https://docs.midnight.network/develop/reference/compact/lang-ref) and [release notes](https://docs.midnight.network/relnotes/overview) for updates.
