@@ -135,4 +135,13 @@ npm run dev            # start dev server
 - SDK packages: `4.1.1`
 - Wallet SDK: `1.2.0`
 
+- ## Deployed Contract
+
+[#deployed-contract](#deployed-contract)
+
+- **Network:** Preprod
+- **Contract ID:** `0bbb4f5c5ccf14fa8ac4b9a4cc9fe87f5003fac446cca13f816ebdadb1a1577a`
+- **Deployed on:** 16/08/2026
+
+
 See [Compact language reference](https://docs.midnight.network/develop/reference/compact/lang-ref) and [release notes](https://docs.midnight.network/relnotes/overview) for updates.
