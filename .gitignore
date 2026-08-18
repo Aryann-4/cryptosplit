@@ -1,6 +1,5 @@
 node_modules/
 dist/
-contract/src/managed/
 *.log
 .DS_Store
 midnight-local-dev/node_modules/
