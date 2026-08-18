@@ -35,8 +35,8 @@ export function calculateNetDebts(expenses: ExpenseRecord[]): NetDebtResult[] {
       if (participantKey === payerKey) continue;
 
       const owed = i === 0 ? share + remainder : share;
-      const key = `${payerKey}:${participantKey}`;
-      const reverseKey = `${participantKey}:${payerKey}`;
+      const key = `${participantKey}:${payerKey}`;
+      const reverseKey = `${payerKey}:${participantKey}`;
 
       const currentDebt = debts.get(key) ?? 0n;
       debts.set(key, currentDebt + owed);
