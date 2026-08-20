@@ -132,7 +132,16 @@ export default function WalletConnect({
         </div>
       )}
 
-      {error && <p className="text-red-600 text-sm mt-2">{error}</p>}
+      {error && (
+        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600 text-sm">{error}</p>
+          {error.includes('network') && (
+            <p className="text-red-500 text-xs mt-1">
+              Try switching networks in the dropdown above
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
