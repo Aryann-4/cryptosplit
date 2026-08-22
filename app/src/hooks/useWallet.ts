@@ -78,6 +78,8 @@ export function useWallet() {
         }
       }
 
+      localStorage.setItem('midnight-wallet-connected', 'true');
+
       setState({
         connected: true,
         connecting: false,
@@ -95,6 +97,13 @@ export function useWallet() {
         connecting: false,
         error: err instanceof Error ? err.message : 'Failed to connect wallet',
       }));
+    }
+  }, []);
+
+  useEffect(() => {
+    const wasConnected = localStorage.getItem('midnight-wallet-connected');
+    if (wasConnected === 'true' && !state.connected && !state.connecting) {
+      connect();
     }
   }, []);
 
