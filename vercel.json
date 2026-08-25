@@ -1,5 +1,0 @@
-{
-  "buildCommand": "pwd && ls -la /vercel/path0/ && ls -la / | head -20",
-  "outputDirectory": "app/dist",
-  "installCommand": "echo skip"
-}
