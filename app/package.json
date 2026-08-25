@@ -7,7 +7,7 @@
     "dev": "vite",
     "server": "tsx server.ts",
     "start": "concurrently \"npm run server\" \"npm run dev\"",
-    "build": "tsc -b && vite build",
+    "build": "tsc -p tsconfig.json --noEmit && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",

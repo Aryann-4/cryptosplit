@@ -6,7 +6,8 @@
     "src/deploy.ts",
     "src/providers.ts",
     "src/wallet.ts",
-    "src/split.ts"
+    "src/split.ts",
+    "src/hooks/useContract.ts"
   ],
   "compilerOptions": {
     "rootDir": "src",
