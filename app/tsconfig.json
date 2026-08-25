@@ -1,6 +1,13 @@
 {
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["src/demo.ts"],
+  "exclude": [
+    "src/demo.ts",
+    "src/contract.ts",
+    "src/deploy.ts",
+    "src/providers.ts",
+    "src/wallet.ts",
+    "src/split.ts"
+  ],
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
