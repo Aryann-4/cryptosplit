@@ -11,13 +11,17 @@ import { getGroup, getExpenses, getNetDebts, addExpense } from '../store.ts';
 import { generateSecret, getMemberId, bytesToHex } from '../crypto.ts';
 import type { Group, Expense, Member } from '../types.ts';
 
+const API_BASE = '/api';
+
 export default function Group() {
   const { address } = useParams<{ address: string }>();
   const navigate = useNavigate();
   const wallet = useWallet();
 
   const [group, setGroup] = useState<Group | null>(null);
-  const [, setRefresh] = useState(0);
+  const [refresh, setRefresh] = useState(0);
+  const [settling, setSettling] = useState(false);
+  const [circuitStatus, setCircuitStatus] = useState<string | null>(null);
 
   useEffect(() => {
     if (address) {
@@ -51,24 +55,68 @@ export default function Group() {
     setRefresh((r) => r + 1);
   };
 
-  const handleSettle = (creditorId: Uint8Array, amount: bigint) => {
-    // In a real app, this would call the contract's settle() function
-    alert(`Would settle ${Number(amount) / 100} with ${bytesToHex(creditorId).slice(0, 8)}...`);
+  const handleSettle = async (creditorId: Uint8Array, amount: bigint) => {
+    setSettling(true);
+    setCircuitStatus('Calling settle circuit...');
+    try {
+      const response = await fetch(`${API_BASE}/settle`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          debtorSecretHex: bytesToHex(generateSecret()),
+          creditorIdHex: bytesToHex(creditorId),
+          amount: Number(amount),
+          creditorAddressHex: bytesToHex(creditorId),
+        }),
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        setCircuitStatus(`Settled! Circuit: ${result.circuit}, TX submitted on-chain`);
+      } else {
+        setCircuitStatus(`Error: ${result.error}`);
+      }
+    } catch (err) {
+      setCircuitStatus(`Network error: ${err instanceof Error ? err.message : 'Unknown'}`);
+    } finally {
+      setSettling(false);
+      setTimeout(() => setCircuitStatus(null), 5000);
+    }
   };
 
-  const handleAddMember = () => {
+  const handleAddMember = async () => {
     if (!group) return;
     const secret = generateSecret();
     const memberId = getMemberId(secret);
-    const newMember: Member = {
-      memberId,
-      label: `Member ${group.members.length + 1}`,
-      isActive: true,
-    };
-    setGroup({
-      ...group,
-      members: [...group.members, newMember],
-    });
+
+    setCircuitStatus('Calling addMember circuit...');
+    try {
+      const response = await fetch(`${API_BASE}/add-member`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberSecretHex: bytesToHex(secret) }),
+      });
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        const newMember: Member = {
+          memberId,
+          label: `Member ${group.members.length + 1}`,
+          isActive: true,
+        };
+        setGroup({
+          ...group,
+          members: [...group.members, newMember],
+        });
+        setCircuitStatus(`Member added! Circuit: ${result.circuit}, MemberID: ${result.memberIdPartial}...`);
+      } else {
+        setCircuitStatus(`Error: ${result.error}`);
+      }
+    } catch (err) {
+      setCircuitStatus(`Network error: ${err instanceof Error ? err.message : 'Unknown'}`);
+    } finally {
+      setTimeout(() => setCircuitStatus(null), 5000);
+    }
   };
 
   if (!group) {
@@ -106,10 +154,31 @@ export default function Group() {
           connected={wallet.connected}
           connecting={wallet.connecting}
           address={wallet.address}
+          shieldedAddress={wallet.shieldedAddress}
           onDisconnect={wallet.disconnect}
           error={wallet.error}
         />
       </div>
+
+      {circuitStatus && (
+        <div className={`rounded-lg p-4 text-sm font-medium ${
+          circuitStatus.includes('Error') || circuitStatus.includes('error')
+            ? 'bg-red-50 text-red-700 border border-red-200'
+            : circuitStatus.includes('success') || circuitStatus.includes('Added') || circuitStatus.includes('Settled')
+              ? 'bg-green-50 text-green-700 border border-green-200'
+              : 'bg-blue-50 text-blue-700 border border-blue-200'
+        }`}>
+          <div className="flex items-center space-x-2">
+            {circuitStatus.includes('Calling') && (
+              <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            )}
+            <span>{circuitStatus}</span>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
@@ -138,7 +207,7 @@ export default function Group() {
               members={group.members}
               currentMemberId={wallet.coinPublicKeyBytes ?? undefined}
               onSettle={handleSettle}
-              settling={false}
+              settling={settling}
             />
           )}
         </div>

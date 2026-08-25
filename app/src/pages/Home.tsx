@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WalletConnect from '../components/WalletConnect.tsx';
+import PrivacyDashboard from '../components/PrivacyDashboard.tsx';
 import { useWallet, createGroupLocal } from '../hooks/useWallet.ts';
 import { createGroup, getAllGroups } from '../store.ts';
 import { bytesToHex } from '../crypto.ts';
@@ -53,20 +54,45 @@ export default function Home() {
           connected={wallet.connected}
           connecting={wallet.connecting}
           address={wallet.address}
+          shieldedAddress={wallet.shieldedAddress}
           onDisconnect={wallet.disconnect}
           error={wallet.error}
         />
       </div>
 
       {!wallet.connected ? (
-        <div className="text-center py-16 bg-white rounded-lg shadow">
-          <div className="w-16 h-16 bg-midnight-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-2xl">🔗</span>
+        <div className="space-y-8">
+          <div className="text-center py-16 bg-white rounded-lg shadow">
+            <div className="w-16 h-16 bg-midnight-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">🔗</span>
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Connect Your Lace Wallet</h2>
+            <p className="text-gray-600 max-w-md mx-auto">
+              Connect your Midnight Lace wallet to create or join expense groups and settle debts on-chain with zero-knowledge privacy.
+            </p>
+            <div className="mt-4 flex justify-center space-x-4 text-sm text-gray-500">
+              <span className="flex items-center space-x-1">
+                <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>ZK Proofs</span>
+              </span>
+              <span className="flex items-center space-x-1">
+                <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>Private Settlements</span>
+              </span>
+              <span className="flex items-center space-x-1">
+                <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span>On-Chain Settlement</span>
+              </span>
+            </div>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Connect Your Wallet</h2>
-          <p className="text-gray-600 max-w-md mx-auto">
-            Connect your Midnight wallet to create or join expense groups and settle debts on-chain.
-          </p>
+
+          <PrivacyDashboard />
         </div>
       ) : (
         <>
