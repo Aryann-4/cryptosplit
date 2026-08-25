@@ -101,6 +101,38 @@ npm run dev
 
 Open http://localhost:3000, connect with a funded wallet, and start splitting bills.
 
+## Running with Lace Wallet (Preprod)
+
+### Prerequisites
+- **Midnight Lace wallet** extension installed in Chrome
+- **Proof server** running locally: `docker run -p 6300:6300 midnightntwrk/proof-server:8.1.0`
+
+### Steps
+
+```bash
+cd app
+npm install
+
+# Start API server (for circuit calls)
+export MIDNIGHT_SEED=<your_64_char_hex_seed>
+export MIDNIGHT_NETWORK=preprod
+npm run server &
+
+# Start frontend
+npm run dev
+
+# Or run both together:
+npm start
+```
+
+1. Open http://localhost:3000
+2. Click "Connect Lace Wallet" — approve in the Lace extension
+3. Create a group, add expenses, and settle debts
+4. Watch the "Circuit Status" indicator when settling — each settlement calls the `settle()` circuit on-chain
+
+### Faucet
+Fund your wallet at https://midnight-tmnight-preprod.nethermind.dev/
+
 ## Build
 
 ```bash
@@ -143,5 +175,41 @@ npm run dev            # start dev server
 - **Contract ID:** `0bbb4f5c5ccf14fa8ac4b9a4cc9fe87f5003fac446cca13f816ebdadb1a1577a`
 - **Deployed on:** 16/08/2026
 
+
+## Privacy Features
+
+### What the blockchain sees vs. what stays private
+
+| On-chain (public) | Off-chain (private) |
+|-------------------|---------------------|
+| `memberId = hash(secret)` | Wallet addresses |
+| `debtKey = hash(debtorId, creditorId)` | Names or labels |
+| Token transfer amounts | Expense descriptions |
+| Transaction proofs | Individual expense amounts |
+
+### How it works
+1. **Commitment scheme**: Each member generates a random `secret`. Their on-chain identity is `memberId = hash(secret)` — a one-way commitment.
+2. **Domain separation**: Debt keys use `debtKey = hash(hash(domain, debtorId), creditorId)` to prevent collisions between different data types.
+3. **ZK circuits**: The `settle()` circuit proves "this debtor authorized payment of X to creditor" without revealing the debtor's wallet address on-chain.
+4. **Net debt storage**: Only net debts are stored (e.g., if Alice owes Bob $20 and Bob owes Alice $10, only $10 net is tracked).
+
+## API Server
+
+The backend API server (`server.ts`) handles circuit calls:
+
+| Endpoint | Method | Circuit | Description |
+|----------|--------|---------|-------------|
+| `/api/health` | GET | — | Check server status |
+| `/api/deploy` | POST | — | Deploy contract to network |
+| `/api/add-member` | POST | `addMember` | Register a new group member |
+| `/api/set-net-debt` | POST | `setNetDebt` | Record net debt on-chain |
+| `/api/settle` | POST | `settle` | Execute settlement transaction |
+
+```bash
+# Start API server
+export MIDNIGHT_SEED=<hex_seed>
+export MIDNIGHT_NETWORK=preprod
+npm run server
+```
 
 See [Compact language reference](https://docs.midnight.network/develop/reference/compact/lang-ref) and [release notes](https://docs.midnight.network/relnotes/overview) for updates.
