@@ -1,5 +1,5 @@
 {
   "installCommand": "npm install --ignore-scripts",
-  "buildCommand": "npm run build",
+  "buildCommand": "cd app && npx tsc -p tsconfig.json --noEmit && npx vite build",
   "outputDirectory": "app/dist"
 }
