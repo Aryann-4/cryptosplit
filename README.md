@@ -67,4 +67,4 @@ Open http://localhost:3000 in Chrome with Lace wallet installed.
 
 ## Demo Video
 
-[PLACEHOLDER — I will add the link after recording]
+[Watch Demo](https://drive.google.com/file/d/1W-igvXXWID0aSKYA-BAV0B-BzOmTNFYq/view?usp=sharing)
