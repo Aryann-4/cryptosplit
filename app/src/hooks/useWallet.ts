@@ -1,4 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import '@midnight-ntwrk/dapp-connector-api';
+import type { InitialAPI, ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
 import { generateSecret, bytesToHex } from '../crypto.ts';
 import type { Group, Member } from '../types.ts';
 
@@ -6,37 +8,80 @@ interface WalletState {
   connected: boolean;
   connecting: boolean;
   address: string | null;
+  shieldedAddress: string | null;
   coinPublicKeyBytes: Uint8Array | null;
+  walletProvider: any | null;
+  connectedApi: ConnectedAPI | null;
+  networkId: string;
   error: string | null;
 }
+
+function listWallets(): InitialAPI[] {
+  if (typeof window === 'undefined' || !window.midnight) return [];
+  return Object.values(window.midnight).filter(
+    (w): w is InitialAPI =>
+      !!w && typeof w === 'object' && 'connect' in w,
+  );
+}
+
+function selectWallet(): InitialAPI | undefined {
+  const wallets = listWallets();
+  return wallets[0];
+}
+
+const NETWORK_ID = 'preprod';
 
 export function useWallet() {
   const [state, setState] = useState<WalletState>({
     connected: false,
     connecting: false,
     address: null,
+    shieldedAddress: null,
     coinPublicKeyBytes: null,
+    walletProvider: null,
+    connectedApi: null,
+    networkId: NETWORK_ID,
     error: null,
   });
 
-  const connect = useCallback(async (secret: string) => {
+  const connect = useCallback(async () => {
     setState((s) => ({ ...s, connecting: true, error: null }));
     try {
-      // Generate a deterministic key from the seed string
-      const seedBytes = new TextEncoder().encode(secret.padEnd(32, '\0').slice(0, 32));
-      const coinPublicKeyBytes = generateSecret();
-      // XOR seed with random for deterministic but unique key
-      for (let i = 0; i < 32; i++) {
-        coinPublicKeyBytes[i] = seedBytes[i] ^ coinPublicKeyBytes[i];
+      const wallet = selectWallet();
+      if (!wallet) {
+        throw new Error('No Midnight wallet found. Please install the Lace wallet extension.');
       }
 
-      const addressHex = bytesToHex(coinPublicKeyBytes);
+      const connectedApi: ConnectedAPI = await wallet.connect(NETWORK_ID);
+      const connectionStatus = await connectedApi.getConnectionStatus();
+      if (connectionStatus.status !== 'connected') {
+        throw new Error('Wallet connection was not approved.');
+      }
+
+      const addresses = await connectedApi.getUnshieldedAddress();
+      const shieldedAddrs = await connectedApi.getShieldedAddresses();
+
+      const address = addresses.unshieldedAddress;
+      const shieldedAddress = shieldedAddrs.shieldedAddress;
+
+      const coinPubBytes = new Uint8Array(32);
+      const pubStr = shieldedAddrs.shieldedCoinPublicKey;
+      if (pubStr) {
+        const hexStr = pubStr.length === 64 ? pubStr : bytesToHex(new TextEncoder().encode(pubStr).slice(0, 32));
+        for (let i = 0; i < 32; i++) {
+          coinPubBytes[i] = parseInt(hexStr.substring(i * 2, i * 2 + 2), 16);
+        }
+      }
 
       setState({
         connected: true,
         connecting: false,
-        address: addressHex,
-        coinPublicKeyBytes,
+        address,
+        shieldedAddress,
+        coinPublicKeyBytes: coinPubBytes,
+        walletProvider: connectedApi,
+        connectedApi,
+        networkId: NETWORK_ID,
         error: null,
       });
     } catch (err) {
@@ -48,15 +93,19 @@ export function useWallet() {
     }
   }, []);
 
-  const disconnect = useCallback(() => {
+  const disconnect = useCallback(async () => {
     setState({
       connected: false,
       connecting: false,
       address: null,
+      shieldedAddress: null,
       coinPublicKeyBytes: null,
+      walletProvider: null,
+      connectedApi: null,
+      networkId: NETWORK_ID,
       error: null,
     });
-  }, []);
+  }, [state.connectedApi]);
 
   return {
     ...state,
@@ -65,7 +114,6 @@ export function useWallet() {
   };
 }
 
-// Helper to create a group locally (will be replaced by contract interaction)
 export function createGroupLocal(
   walletAddress: Uint8Array,
   memberLabels: string[],
