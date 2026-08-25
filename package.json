@@ -11,6 +11,7 @@
     "build:contract": "npm run build --workspace=contract",
     "dev": "npm run dev --workspace=app",
     "build": "npm run build --workspace=app",
-    "demo": "npm run demo --workspace=app"
+    "demo": "npm run demo --workspace=app",
+    "test": "npx vitest run tests/"
   }
 }
