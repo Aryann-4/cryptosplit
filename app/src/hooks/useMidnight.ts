@@ -2,8 +2,14 @@ import { useState, useCallback } from 'react';
 import '@midnight-ntwrk/dapp-connector-api';
 import type { InitialAPI, ConnectedAPI } from '@midnight-ntwrk/dapp-connector-api';
 
-const NETWORK_ID = 'preprod';
 const API_BASE = '/api';
+
+function getNetworkId(): string {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('midnight-network') || 'preprod';
+  }
+  return 'preprod';
+}
 
 interface MidnightState {
   connected: boolean;
@@ -52,7 +58,7 @@ export function useMidnight() {
         throw new Error('No Midnight wallet found. Install the Lace wallet extension.');
       }
 
-      const connectedApi: ConnectedAPI = await wallet.connect(NETWORK_ID);
+      const connectedApi: ConnectedAPI = await wallet.connect(getNetworkId());
       const status = await connectedApi.getConnectionStatus();
       if (status.status !== 'connected') {
         throw new Error('Wallet connection was not approved.');

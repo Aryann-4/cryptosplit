@@ -10,6 +10,13 @@ interface WalletConnectProps {
   error: string | null;
 }
 
+function getStoredNetwork(): string {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('midnight-network') || 'preprod';
+  }
+  return 'preprod';
+}
+
 export default function WalletConnect({
   onConnect,
   connected,
@@ -20,6 +27,7 @@ export default function WalletConnect({
   error,
 }: WalletConnectProps) {
   const [walletDetected, setWalletDetected] = useState<boolean | null>(null);
+  const [network, setNetwork] = useState<string>(getStoredNetwork);
 
   useEffect(() => {
     const checkWallet = () => {
@@ -37,6 +45,14 @@ export default function WalletConnect({
     const interval = setInterval(checkWallet, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleNetworkChange = (newNetwork: string) => {
+    setNetwork(newNetwork);
+    localStorage.setItem('midnight-network', newNetwork);
+    if (connected) {
+      onDisconnect();
+    }
+  };
 
   if (connected && address) {
     return (
@@ -68,7 +84,17 @@ export default function WalletConnect({
   }
 
   return (
-    <div>
+    <div className="flex items-center space-x-2">
+      <select
+        value={network}
+        onChange={(e) => handleNetworkChange(e.target.value)}
+        className="border border-gray-300 rounded-lg px-2 py-2 text-sm focus:ring-2 focus:ring-midnight-500"
+      >
+        <option value="preprod">Preprod</option>
+        <option value="preview">Preview</option>
+        <option value="undeployed">Local</option>
+      </select>
+
       <button
         onClick={onConnect}
         disabled={connecting || walletDetected === false}

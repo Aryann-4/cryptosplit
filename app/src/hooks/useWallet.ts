@@ -29,7 +29,12 @@ function selectWallet(): InitialAPI | undefined {
   return wallets[0];
 }
 
-const NETWORK_ID = 'preprod';
+function getNetworkId(): string {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('midnight-network') || 'preprod';
+  }
+  return 'preprod';
+}
 
 export function useWallet() {
   const [state, setState] = useState<WalletState>({
@@ -40,7 +45,7 @@ export function useWallet() {
     coinPublicKeyBytes: null,
     walletProvider: null,
     connectedApi: null,
-    networkId: NETWORK_ID,
+    networkId: getNetworkId(),
     error: null,
   });
 
@@ -52,7 +57,7 @@ export function useWallet() {
         throw new Error('No Midnight wallet found. Please install the Lace wallet extension.');
       }
 
-      const connectedApi: ConnectedAPI = await wallet.connect(NETWORK_ID);
+      const connectedApi: ConnectedAPI = await wallet.connect(getNetworkId());
       const connectionStatus = await connectedApi.getConnectionStatus();
       if (connectionStatus.status !== 'connected') {
         throw new Error('Wallet connection was not approved.');
@@ -81,7 +86,7 @@ export function useWallet() {
         coinPublicKeyBytes: coinPubBytes,
         walletProvider: connectedApi,
         connectedApi,
-        networkId: NETWORK_ID,
+        networkId: getNetworkId(),
         error: null,
       });
     } catch (err) {
@@ -102,7 +107,7 @@ export function useWallet() {
       coinPublicKeyBytes: null,
       walletProvider: null,
       connectedApi: null,
-      networkId: NETWORK_ID,
+      networkId: getNetworkId(),
       error: null,
     });
   }, [state.connectedApi]);
