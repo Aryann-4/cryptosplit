@@ -4,7 +4,7 @@
 
 ## Live Demo
 
-[https://cryptosplit.vercel.app](https://cryptosplit.vercel.app)
+[https://cryptosplit-app-96to.vercel.app](https://cryptosplit-app-96to.vercel.app)
 
 ## Contract Address
 
