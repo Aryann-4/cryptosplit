@@ -6,6 +6,7 @@ import ExpenseList from '../components/ExpenseList.tsx';
 import BalanceView from '../components/BalanceView.tsx';
 import SettlementPanel from '../components/SettlementPanel.tsx';
 import MemberList from '../components/MemberList.tsx';
+import CircuitCall from '../components/CircuitCall.tsx';
 import { useWallet } from '../hooks/useWallet.ts';
 import { getGroup, getExpenses, getNetDebts, addExpense } from '../store.ts';
 import { generateSecret, getMemberId, bytesToHex } from '../crypto.ts';
@@ -13,7 +14,7 @@ import type { Group, Expense, Member } from '../types.ts';
 
 const API_BASE = '/api';
 
-async function apiCall(circuit: string, body: Record<string, unknown>): Promise<{ status: string; circuit?: string; error?: string; memberIdPartial?: string }> {
+async function apiCall(circuit: string, body: Record<string, unknown>): Promise<{ status: string; circuit?: string; error?: string; memberIdPartial?: string; txHash?: string }> {
   try {
     const response = await fetch(`${API_BASE}/${circuit}`, {
       method: 'POST',
@@ -37,6 +38,11 @@ export default function Group() {
   const [refresh, setRefresh] = useState(0);
   const [settling, setSettling] = useState(false);
   const [circuitStatus, setCircuitStatus] = useState<string | null>(null);
+  const [circuitResult, setCircuitResult] = useState<{
+    status: 'idle' | 'proving' | 'submitting' | 'success' | 'error';
+    txHash: string | null;
+    error: string | null;
+  }>({ status: 'idle', txHash: null, error: null });
 
   useEffect(() => {
     if (address) {
@@ -115,6 +121,24 @@ export default function Group() {
       setCircuitStatus(`Error: ${err instanceof Error ? err.message : 'Unknown'}`);
     } finally {
       setTimeout(() => setCircuitStatus(null), 5000);
+    }
+  };
+
+  const handleCircuitCall = async (circuit: string, args: Record<string, unknown>) => {
+    setCircuitResult({ status: 'proving', txHash: null, error: null });
+    try {
+      const result = await apiCall(circuit, args);
+      setCircuitResult({
+        status: 'success',
+        txHash: result.txHash ?? null,
+        error: null,
+      });
+    } catch (err) {
+      setCircuitResult({
+        status: 'error',
+        txHash: null,
+        error: err instanceof Error ? err.message : 'Unknown error',
+      });
     }
   };
 
@@ -207,6 +231,14 @@ export default function Group() {
               currentMemberId={wallet.coinPublicKeyBytes ?? undefined}
               onSettle={handleSettle}
               settling={settling}
+            />
+          )}
+          {wallet.connected && (
+            <CircuitCall
+              connected={wallet.connected}
+              onCallCircuit={handleCircuitCall}
+              circuitResult={circuitResult}
+              onReset={() => setCircuitResult({ status: 'idle', txHash: null, error: null })}
             />
           )}
         </div>
