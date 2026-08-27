@@ -94,3 +94,10 @@ export function calculateCustomShares(
   }
   return shares;
 }
+
+export function formatCurrency(amount: bigint, currency: string = 'tMID'): string {
+  const whole = amount / 100n;
+  const decimal = amount % 100n;
+  const decimalStr = decimal < 10n ? `0${decimal}` : `${decimal}`;
+  return `${whole}.${decimalStr} ${currency}`;
+}
