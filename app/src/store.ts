@@ -63,3 +63,27 @@ function recalculateNetDebts(contractAddress: string): void {
     })),
   );
 }
+
+export function exportGroupData(contractAddress: string): string {
+  const group = state.groups.get(contractAddress);
+  const expenses = state.expenses.get(contractAddress) ?? [];
+  const debts = state.netDebts.get(contractAddress) ?? [];
+
+  return JSON.stringify({
+    group: group ? {
+      contractAddress: group.contractAddress,
+      memberCount: group.members.length,
+      createdAt: group.createdAt,
+    } : null,
+    expenses: expenses.map(e => ({
+      id: e.id,
+      amount: e.amount.toString(),
+      description: e.description,
+      timestamp: e.timestamp,
+    })),
+    netDebts: debts.map(d => ({
+      amount: d.amount.toString(),
+    })),
+    exportedAt: Date.now(),
+  }, null, 2);
+}
