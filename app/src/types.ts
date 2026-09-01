@@ -45,3 +45,19 @@ export interface GroupState {
   netDebts: NetDebt[];
   settlements: Settlement[];
 }
+
+export interface CircuitCallResponse {
+  status: 'success' | 'error';
+  circuit?: string;
+  error?: string;
+  memberIdPartial?: string;
+  txHash?: string;
+  proofGenerated?: boolean;
+}
+
+export interface WalletInfo {
+  address: string;
+  shieldedAddress: string | null;
+  networkId: string;
+  isConnected: boolean;
+}
