@@ -11,19 +11,19 @@ https://cryptosplit-app-96to.vercel.app
 |----------|---------|
 | Preprod  | `0bbb4f5c5ccf14fa8ac4b9a4cc9fe87f5003fac446cca13f816ebdadb1a1577a` |
 
-## What This Does
+## What This Product Does
 
-CryptoSplit is a decentralized alternative to Splitwise built on the Midnight Network. Users connect their Lace wallet, create expense groups, add members, track shared expenses, calculate net debts, and settle on-chain — all without exposing wallet addresses or personal information on the public ledger.
+Splitwise is great for tracking shared expenses — but it stores all your financial relationships on centralized servers. Every dinner, every rent payment, every "who owes whom" sits in a database that can be sold, hacked, or subpoenaed. For people splitting sensitive expenses (medical costs, family finances, business travel), this is a real problem.
+
+CryptoSplit solves this by moving bill-splitting to the Midnight blockchain. Users connect their Lace wallet, create expense groups, and settle debts on-chain — but here's the key: **no wallet address ever appears on the blockchain**. Member identities are commitment hashes (`memberId = hash(secret)`), debt relationships are domain-separated keys, and settlement is proved via ZK circuits. An observer sees only meaningless hashes and token transfers.
+
+This matters because Midnight's privacy primitives enable something a transparent chain cannot: real financial activity without surveillance. You can prove you settled your debt without revealing who you are, how much you owe, or who you owe it to.
 
 ## Privacy Model
 
-- **PUBLIC:** Commitment hashes (`memberId`, `debtKey`), token transfer amounts, ZK proof validity
-- **PRIVATE:** Wallet addresses, member names, expense descriptions, individual expense amounts, who paid for what
-- **PROVED without revealing:** "I am a valid member of this group" (via `addMember`), "I authorize payment of X to settle my debt" (via `settle`) — proved via ZK circuits without revealing the user's secret or wallet address
-
-## Privacy Claim
-
-An on-chain observer sees only commitment hashes (e.g., `debtKey = hash(hash(domain, debtorId), creditorId)`) and token transfers. They **cannot** determine which real wallet addresses correspond to group members, what the original expense amounts were, or who paid for what. The `settle()` circuit proves "this debtor authorized sending N tokens to the creditor's wallet" without the debtor's identity ever appearing on-chain.
+- **What is PUBLIC (on-chain, anyone can see):** Commitment hashes (`memberId`, `debtKey`), token transfer amounts, ZK proof validity, net debt values linked to hash pairs
+- **What is PRIVATE (private witness, never on-chain):** Wallet addresses, member names/labels, expense descriptions, individual expense amounts, who paid for what, organizer secrets
+- **What the user PROVES without revealing:** "I am a valid member of this group" (via `addMember`), "I authorize payment of X to settle my debt" (via `settle`) — proved via ZK circuits without revealing the user's secret or wallet address
 
 ## Tech Stack
 
@@ -44,22 +44,22 @@ An on-chain observer sees only commitment hashes (e.g., `debtKey = hash(hash(dom
 ## Setup & Run Locally
 
 ```bash
-# Clone the repo
+# 1. Clone the repo
 git clone https://github.com/Aryann-4/cryptosplit.git
 cd cryptosplit
 
-# Install dependencies
+# 2. Install dependencies
 cd app && npm install
 
-# Start proof server (required for ZK proof generation)
+# 3. Start proof server (required for ZK proof generation)
 docker run -d --name proof-server -p 6300:6300 midnightntwrk/proof-server:8.1.0
 
-# Start the backend API server
+# 4. Start the backend API server
 export MIDNIGHT_SEED=$(openssl rand -hex 32)
 export MIDNIGHT_NETWORK=preprod
 npm run server &
 
-# Start the frontend
+# 5. Start the frontend
 npm run dev
 ```
 
@@ -71,7 +71,7 @@ Open http://localhost:3000 in Chrome with Lace wallet installed.
 # Frontend tests (30 tests)
 cd app && npm test
 
-# Root-level contract logic tests (9 tests)
+# Contract logic tests (9 tests)
 npm test
 ```
 
@@ -81,16 +81,19 @@ GitHub Actions runs on every push to `main` and on pull requests:
 
 1. Checks out code
 2. Installs Node.js v22 and dependencies
-3. Compiles Compact smart contracts
-4. Typechecks the frontend
-5. Runs all test suites (30 frontend + 9 contract logic)
-6. Builds the production frontend
+3. Typechecks the frontend
+4. Runs all test suites (30 frontend + 9 contract logic)
+5. Builds the production frontend
 
 The CI badge at the top of this README shows the current pipeline status.
 
-## Product Proposal
+## Usage Guide
 
-See [PROPOSAL.md](./PROPOSAL.md)
+See [docs/USAGE.md](./docs/USAGE.md) for a step-by-step guide with screenshots.
+
+## Product X Profile
+
+[PLACEHOLDER — I will add after creating the account]
 
 ## Demo Video
 
