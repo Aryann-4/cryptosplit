@@ -92,8 +92,7 @@ The CI badge at the top of this README shows the current pipeline status.
 See [docs/USAGE.md](./docs/USAGE.md) for a step-by-step guide with screenshots.
 
 ## Product X Profile
-
-[PLACEHOLDER — I will add after creating the account]
+[@CryptoSplit4](https://x.com/CryptoSplit4)
 
 ## Demo Video
 
