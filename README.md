@@ -96,4 +96,4 @@ See [docs/USAGE.md](./docs/USAGE.md) for a step-by-step guide with screenshots.
 
 ## Demo Video
 
-[Watch Demo](https://drive.google.com/file/d/1W-igvXXWID0aSKYA-BAV0B-BzOmTNFYq/view?usp=sharing)
+[Watch Demo](https://drive.google.com/file/d/1MT-8SBfY6Ej7gszfO2a_n6PURsQOSPMD/view?usp=sharing)
