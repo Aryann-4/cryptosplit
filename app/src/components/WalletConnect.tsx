@@ -17,15 +17,7 @@ function getStoredNetwork(): string {
   return 'preprod';
 }
 
-export default function WalletConnect({
-  onConnect,
-  connected,
-  connecting,
-  address,
-  shieldedAddress,
-  onDisconnect,
-  error,
-}: WalletConnectProps) {
+export default function WalletConnect({ onConnect, connected, connecting, address, shieldedAddress, onDisconnect, error }: WalletConnectProps) {
   const [walletDetected, setWalletDetected] = useState<boolean | null>(null);
   const [network, setNetwork] = useState<string>(getStoredNetwork);
 
@@ -49,34 +41,29 @@ export default function WalletConnect({
   const handleNetworkChange = (newNetwork: string) => {
     setNetwork(newNetwork);
     localStorage.setItem('midnight-network', newNetwork);
-    if (connected) {
-      onDisconnect();
-    }
+    if (connected) onDisconnect();
   };
 
   if (connected && address) {
     return (
       <div className="flex items-center space-x-3">
         <div className="flex flex-col items-end">
-          <div className="flex items-center space-x-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-mono text-green-700">
+          <div className="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-3 py-2">
+            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+            <span className="text-sm font-mono text-emerald-400">
               {address.slice(0, 12)}...{address.slice(-8)}
             </span>
           </div>
           {shieldedAddress && (
-            <div className="flex items-center space-x-2 mt-1 bg-purple-50 border border-purple-200 rounded-lg px-3 py-1">
-              <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-              <span className="text-xs font-mono text-purple-700" title={shieldedAddress}>
+            <div className="flex items-center space-x-2 mt-1 bg-[#4c6ef5]/10 border border-[#4c6ef5]/20 rounded-xl px-3 py-1">
+              <div className="w-2 h-2 bg-[#4c6ef5] rounded-full"></div>
+              <span className="text-xs font-mono text-[#818cf8]" title={shieldedAddress}>
                 Shielded: {shieldedAddress.slice(0, 12)}...{shieldedAddress.slice(-8)}
               </span>
             </div>
           )}
         </div>
-        <button
-          onClick={onDisconnect}
-          className="text-sm text-gray-500 hover:text-gray-700 underline"
-        >
+        <button onClick={onDisconnect} className="text-sm text-surface-500 hover:text-white transition-colors underline">
           Disconnect
         </button>
       </div>
@@ -88,7 +75,7 @@ export default function WalletConnect({
       <select
         value={network}
         onChange={(e) => handleNetworkChange(e.target.value)}
-        className="border border-gray-300 rounded-lg px-2 py-2 text-sm focus:ring-2 focus:ring-midnight-500"
+        className="input-glass bg-[#12121a] w-auto px-2 py-2 text-sm"
       >
         <option value="preprod">Preprod</option>
         <option value="preview">Preview</option>
@@ -98,7 +85,7 @@ export default function WalletConnect({
       <button
         onClick={onConnect}
         disabled={connecting || walletDetected === false}
-        className="bg-midnight-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-midnight-700 disabled:opacity-50 flex items-center space-x-2"
+        className="btn-primary text-sm px-4 py-2 disabled:opacity-50 flex items-center space-x-2"
       >
         {connecting ? (
           <>
@@ -120,25 +107,18 @@ export default function WalletConnect({
 
       {walletDetected === false && (
         <div className="mt-2">
-          <p className="text-amber-600 text-sm mb-1">Lace wallet not detected</p>
-          <a
-            href="https://docs.midnight.network/wallet/install-lace"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-midnight-600 text-xs hover:underline"
-          >
+          <p className="text-amber-400 text-sm mb-1">Lace wallet not detected</p>
+          <a href="https://docs.midnight.network/wallet/install-lace" target="_blank" rel="noopener noreferrer" className="text-[#4c6ef5] text-xs hover:text-[#748ffc]">
             Install Midnight Lace wallet
           </a>
         </div>
       )}
 
       {error && (
-        <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-600 text-sm">{error}</p>
+        <div className="mt-2 p-2 bg-red-500/10 border border-red-500/20 rounded-xl">
+          <p className="text-red-400 text-sm">{error}</p>
           {error.includes('network') && (
-            <p className="text-red-500 text-xs mt-1">
-              Try switching networks in the dropdown above
-            </p>
+            <p className="text-red-400/60 text-xs mt-1">Try switching networks in the dropdown</p>
           )}
         </div>
       )}

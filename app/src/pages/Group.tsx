@@ -74,7 +74,7 @@ export default function Group() {
         creditorAddressHex: bytesToHex(creditorId),
       });
       if (result.status === 'success') {
-        setCircuitStatus({ message: 'Settlement proved and submitted on-chain!', type: 'success' });
+        setCircuitStatus({ message: 'Settlement proved and submitted!', type: 'success' });
         setRefresh((r) => r + 1);
       } else {
         setCircuitStatus({ message: result.error || 'Settlement failed', type: 'error' });
@@ -134,17 +134,14 @@ export default function Group() {
   if (!group) {
     return (
       <div className="text-center py-20">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
+          <svg className="w-8 h-8 text-surface-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-2">Group not found</h2>
-        <p className="text-gray-500 mb-4">This group may have been removed or the link is invalid.</p>
-        <button
-          onClick={() => navigate('/')}
-          className="text-midnight-600 hover:text-midnight-800 font-medium"
-        >
+        <h2 className="text-xl font-semibold gradient-text mb-2">Group not found</h2>
+        <p className="text-surface-500 mb-4">This group may have been removed or the link is invalid.</p>
+        <button onClick={() => navigate('/')} className="text-[#4c6ef5] hover:text-[#748ffc] font-medium transition-colors">
           Back to Home
         </button>
       </div>
@@ -158,20 +155,20 @@ export default function Group() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+      <div className="glass p-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <button
               onClick={() => navigate('/')}
-              className="text-sm text-midnight-600 hover:text-midnight-800 mb-2 flex items-center space-x-1 transition-colors"
+              className="text-sm text-[#4c6ef5] hover:text-[#748ffc] mb-2 flex items-center space-x-1 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               <span>Back to Home</span>
             </button>
-            <h1 className="text-2xl font-bold text-gray-900">Expense Group</h1>
-            <p className="text-sm text-gray-400 font-mono mt-1">{group.contractAddress}</p>
+            <h1 className="text-2xl font-bold gradient-text">Expense Group</h1>
+            <p className="text-sm text-surface-600 font-mono mt-1">{group.contractAddress}</p>
           </div>
           <WalletConnect
             onConnect={wallet.connect}
@@ -185,32 +182,32 @@ export default function Group() {
         </div>
 
         {/* Stats Bar */}
-        <div className="mt-4 grid grid-cols-3 gap-4 bg-gray-50 rounded-xl p-4">
+        <div className="mt-4 grid grid-cols-3 gap-4 bg-white/[0.02] rounded-2xl p-4 border border-white/[0.04]">
           <div className="text-center">
-            <div className="text-lg font-bold text-gray-900">{group.members.length}</div>
-            <div className="text-xs text-gray-500">Members</div>
+            <div className="text-xl font-bold gradient-text">{group.members.length}</div>
+            <div className="text-xs text-surface-500">Members</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-gray-900">{expenses.length}</div>
-            <div className="text-xs text-gray-500">Expenses</div>
+            <div className="text-xl font-bold gradient-text">{expenses.length}</div>
+            <div className="text-xs text-surface-500">Expenses</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-gray-900">
+            <div className="text-xl font-bold gradient-text">
               {totalExpense > 0n ? `$${(Number(totalExpense) / 100).toFixed(0)}` : '$0'}
             </div>
-            <div className="text-xs text-gray-500">Total Spent</div>
+            <div className="text-xs text-surface-500">Total Spent</div>
           </div>
         </div>
       </div>
 
       {/* Circuit Status Toast */}
       {circuitStatus && (
-        <div className={`rounded-xl p-4 text-sm font-medium shadow-sm border ${
+        <div className={`rounded-xl p-4 text-sm font-medium border animate-slide-up ${
           circuitStatus.type === 'error'
-            ? 'bg-red-50 text-red-700 border-red-200'
+            ? 'bg-red-500/10 text-red-400 border-red-500/20'
             : circuitStatus.type === 'success'
-              ? 'bg-green-50 text-green-700 border-green-200'
-              : 'bg-blue-50 text-blue-700 border-blue-200'
+              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+              : 'bg-[#4c6ef5]/10 text-[#818cf8] border-[#4c6ef5]/20'
         }`}>
           <div className="flex items-center space-x-3">
             {circuitStatus.type === 'info' && (
@@ -236,18 +233,13 @@ export default function Group() {
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column */}
         <div className="lg:col-span-2 space-y-6">
           {wallet.connected && (
-            <ExpenseForm
-              members={group.members}
-              onSubmit={handleAddExpense}
-            />
+            <ExpenseForm members={group.members} onSubmit={handleAddExpense} />
           )}
           <ExpenseList expenses={expenses} members={group.members} />
         </div>
 
-        {/* Right Column */}
         <div className="space-y-6">
           <MemberList
             members={group.members}

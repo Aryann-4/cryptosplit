@@ -7,15 +7,15 @@ interface MemberListProps {
   addingMember?: boolean;
 }
 
-const AVATAR_COLORS = [
-  'from-purple-500 to-purple-600',
-  'from-indigo-500 to-indigo-600',
-  'from-blue-500 to-blue-600',
-  'from-emerald-500 to-emerald-600',
-  'from-amber-500 to-amber-600',
-  'from-rose-500 to-rose-600',
-  'from-cyan-500 to-cyan-600',
-  'from-pink-500 to-pink-600',
+const AVATAR_GRADIENTS = [
+  'from-[#4c6ef5] to-[#7c3aed]',
+  'from-[#7c3aed] to-[#a855f7]',
+  'from-[#06b6d4] to-[#3b82f6]',
+  'from-[#10b981] to-[#06b6d4]',
+  'from-[#f59e0b] to-[#f97316]',
+  'from-[#ef4444] to-[#ec4899]',
+  'from-[#8b5cf6] to-[#d946ef]',
+  'from-[#14b8a6] to-[#22d3ee]',
 ];
 
 export default function MemberList({ members, onAddMember, addingMember }: MemberListProps) {
@@ -23,10 +23,10 @@ export default function MemberList({ members, onAddMember, addingMember }: Membe
   const inactiveCount = members.filter(m => !m.isActive).length;
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+    <div className="glass p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-          <svg className="w-5 h-5 text-midnight-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <h3 className="text-lg font-semibold gradient-text flex items-center space-x-2">
+          <svg className="w-5 h-5 text-[#4c6ef5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
           <span>Members</span>
@@ -35,7 +35,7 @@ export default function MemberList({ members, onAddMember, addingMember }: Membe
           <button
             onClick={onAddMember}
             disabled={addingMember}
-            className="text-sm text-midnight-600 hover:text-midnight-800 font-medium disabled:opacity-50 transition-colors flex items-center space-x-1"
+            className="text-sm text-[#4c6ef5] hover:text-[#748ffc] font-medium disabled:opacity-50 transition-colors flex items-center space-x-1"
           >
             {addingMember ? (
               <>
@@ -57,16 +57,15 @@ export default function MemberList({ members, onAddMember, addingMember }: Membe
         )}
       </div>
 
-      {/* Summary */}
       <div className="flex items-center space-x-3 mb-4 text-sm">
         <span className="flex items-center space-x-1.5">
-          <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-          <span className="text-gray-600">{activeCount} active</span>
+          <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
+          <span className="text-surface-400">{activeCount} active</span>
         </span>
         {inactiveCount > 0 && (
           <span className="flex items-center space-x-1.5">
-            <span className="w-2 h-2 bg-gray-400 rounded-full"></span>
-            <span className="text-gray-500">{inactiveCount} removed</span>
+            <span className="w-2 h-2 bg-surface-600 rounded-full"></span>
+            <span className="text-surface-500">{inactiveCount} removed</span>
           </span>
         )}
       </div>
@@ -77,30 +76,24 @@ export default function MemberList({ members, onAddMember, addingMember }: Membe
             key={bytesToHex(member.memberId)}
             className={`flex items-center justify-between p-3 rounded-xl transition-all ${
               member.isActive
-                ? 'bg-gray-50 hover:bg-gray-100 border border-gray-100'
-                : 'bg-gray-50/50 opacity-60 border border-gray-100'
+                ? 'bg-white/[0.03] hover:bg-white/[0.05] border border-white/[0.06]'
+                : 'bg-white/[0.01] opacity-50 border border-white/[0.04]'
             }`}
           >
             <div className="flex items-center space-x-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold bg-gradient-to-br ${
-                AVATAR_COLORS[index % AVATAR_COLORS.length]
-              } shadow-sm`}>
+              <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${AVATAR_GRADIENTS[index % AVATAR_GRADIENTS.length]} flex items-center justify-center text-white text-sm font-bold shadow-lg`}>
                 {member.label.charAt(0).toUpperCase()}
               </div>
               <div>
-                <p className="font-medium text-gray-900">{member.label}</p>
-                <p className="text-xs text-gray-400 font-mono">
-                  {bytesToHex(member.memberId).slice(0, 16)}...
-                </p>
+                <p className="font-medium text-surface-200">{member.label}</p>
+                <p className="text-xs text-surface-600 font-mono">{bytesToHex(member.memberId).slice(0, 16)}...</p>
               </div>
             </div>
-            <span
-              className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                member.isActive
-                  ? 'bg-green-100 text-green-700'
-                  : 'bg-gray-200 text-gray-500'
-              }`}
-            >
+            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+              member.isActive
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                : 'bg-white/[0.05] text-surface-500 border border-white/[0.06]'
+            }`}>
               {member.isActive ? 'Active' : 'Removed'}
             </span>
           </div>
