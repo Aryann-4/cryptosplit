@@ -37,34 +37,74 @@ export default function CircuitCall({
     }
   };
 
+  const steps = [
+    { label: 'Generate ZK Proof', done: circuitResult.status === 'success' || circuitResult.status === 'submitting' },
+    { label: 'Submit to Chain', done: circuitResult.status === 'success' },
+    { label: 'Verify', done: circuitResult.status === 'success' },
+  ];
+
   return (
-    <div className="bg-white rounded-lg shadow p-6 space-y-4">
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-5">
       <div>
-        <h3 className="text-lg font-semibold text-gray-900">Call Circuit</h3>
+        <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
+          <svg className="w-5 h-5 text-midnight-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span>Call Circuit</span>
+        </h3>
         <p className="text-sm text-gray-500 mt-1">
-          Generate a ZK proof locally and submit it on-chain.
+          Generate a ZK proof locally and submit it on-chain
         </p>
       </div>
 
+      {/* Circuit Selector */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">
           Circuit
         </label>
-        <select
-          value={circuit}
-          onChange={(e) => setCircuit(e.target.value as 'addMember' | 'settle')}
-          disabled={circuitResult.status === 'proving' || circuitResult.status === 'submitting'}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-midnight-500"
-        >
-          <option value="addMember">addMember</option>
-          <option value="settle">settle</option>
-        </select>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setCircuit('addMember')}
+            disabled={circuitResult.status === 'proving' || circuitResult.status === 'submitting'}
+            className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+              circuit === 'addMember'
+                ? 'border-midnight-500 bg-midnight-50 text-midnight-700'
+                : 'border-gray-200 text-gray-500 hover:border-gray-300'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              <span>addMember</span>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setCircuit('settle')}
+            disabled={circuitResult.status === 'proving' || circuitResult.status === 'submitting'}
+            className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+              circuit === 'settle'
+                ? 'border-midnight-500 bg-midnight-50 text-midnight-700'
+                : 'border-gray-200 text-gray-500 hover:border-gray-300'
+            }`}
+          >
+            <div className="flex items-center space-x-2">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <span>settle</span>
+            </div>
+          </button>
+        </div>
       </div>
 
+      {/* Secret Input (for addMember) */}
       {circuit === 'addMember' && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Member Secret (private — never sent to chain)
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Member Secret
           </label>
           <input
             type="password"
@@ -72,23 +112,58 @@ export default function CircuitCall({
             onChange={(e) => setMemberSecret(e.target.value)}
             placeholder="Leave blank to auto-generate"
             disabled={circuitResult.status === 'proving' || circuitResult.status === 'submitting'}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-midnight-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-midnight-500 transition-colors text-sm"
           />
-          <p className="text-xs text-purple-600 mt-1 flex items-center space-x-1">
-            <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+          <div className="flex items-center space-x-1.5 mt-2">
+            <svg className="w-3.5 h-3.5 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
             </svg>
-            <span>Proved without revealing your input</span>
-          </p>
+            <span className="text-xs text-purple-600 font-medium">Proved without revealing your input</span>
+          </div>
         </div>
       )}
 
+      {/* Progress Steps */}
+      {(circuitResult.status === 'proving' || circuitResult.status === 'submitting' || circuitResult.status === 'success') && (
+        <div className="bg-gray-50 rounded-xl p-4">
+          <div className="space-y-3">
+            {steps.map((step, i) => (
+              <div key={i} className="flex items-center space-x-3">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  step.done ? 'bg-green-500' : 
+                  (i === 1 && circuitResult.status === 'submitting') || (i === 0 && circuitResult.status === 'proving')
+                    ? 'bg-midnight-500' : 'bg-gray-300'
+                }`}>
+                  {step.done ? (
+                    <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  ) : (
+                    <svg className={`w-3.5 h-3.5 text-white ${
+                      (i === 1 && circuitResult.status === 'submitting') || (i === 0 && circuitResult.status === 'proving')
+                        ? 'animate-spin' : ''
+                    }`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  )}
+                </div>
+                <span className={`text-sm ${step.done ? 'text-green-700 font-medium' : 'text-gray-500'}`}>
+                  {step.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Call Button */}
       <button
         onClick={handleCall}
         disabled={!connected || circuitResult.status === 'proving' || circuitResult.status === 'submitting'}
-        className="w-full bg-midnight-600 text-white py-2 rounded-lg font-medium hover:bg-midnight-700 disabled:opacity-50 flex items-center justify-center space-x-2"
+        className="w-full bg-gradient-to-r from-midnight-600 to-purple-600 text-white py-3 rounded-lg font-medium hover:from-midnight-700 hover:to-purple-700 disabled:opacity-50 transition-all shadow-sm flex items-center justify-center space-x-2"
       >
-        {circuitResult.status === 'proving' && (
+        {circuitResult.status === 'proving' ? (
           <>
             <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
@@ -96,8 +171,7 @@ export default function CircuitCall({
             </svg>
             <span>Generating ZK Proof...</span>
           </>
-        )}
-        {circuitResult.status === 'submitting' && (
+        ) : circuitResult.status === 'submitting' ? (
           <>
             <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
@@ -105,48 +179,70 @@ export default function CircuitCall({
             </svg>
             <span>Submitting to Chain...</span>
           </>
+        ) : circuitResult.status === 'success' ? (
+          <>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Call Again</span>
+          </>
+        ) : circuitResult.status === 'error' ? (
+          <>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Retry</span>
+          </>
+        ) : (
+          <>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <span>Call Circuit</span>
+          </>
         )}
-        {circuitResult.status === 'idle' && <span>Call Circuit</span>}
-        {circuitResult.status === 'success' && <span>Call Again</span>}
-        {circuitResult.status === 'error' && <span>Retry</span>}
       </button>
 
+      {/* Success Result */}
       {circuitResult.status === 'success' && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 space-y-2">
+        <div className="bg-green-50 border border-green-200 rounded-xl p-4 space-y-2 animate-in">
           <div className="flex items-center space-x-2">
-            <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <p className="text-sm font-medium text-green-800">
-              Circuit called successfully!
-            </p>
+            <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <p className="text-sm font-medium text-green-800">Circuit called successfully!</p>
           </div>
           {circuitResult.txHash && (
-            <p className="text-xs text-green-700 font-mono">
-              TX: {circuitResult.txHash.slice(0, 20)}...
+            <p className="text-xs text-green-700 font-mono bg-green-100 rounded-lg px-3 py-1.5">
+              TX: {circuitResult.txHash.slice(0, 32)}...
             </p>
           )}
           <button
             onClick={onReset}
-            className="text-xs text-green-600 hover:text-green-800 underline"
+            className="text-xs text-green-600 hover:text-green-800 font-medium"
           >
             Reset
           </button>
         </div>
       )}
 
+      {/* Error Result */}
       {circuitResult.status === 'error' && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 space-y-2">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-2 animate-in">
           <div className="flex items-center space-x-2">
-            <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-            </svg>
+            <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            </div>
             <p className="text-sm font-medium text-red-800">Circuit call failed</p>
           </div>
           <p className="text-xs text-red-700">{circuitResult.error}</p>
           <button
             onClick={onReset}
-            className="text-xs text-red-600 hover:text-red-800 underline"
+            className="text-xs text-red-600 hover:text-red-800 font-medium"
           >
             Reset
           </button>
@@ -154,9 +250,14 @@ export default function CircuitCall({
       )}
 
       {!connected && (
-        <p className="text-xs text-gray-400 text-center">
-          Connect your Lace wallet to call circuits
-        </p>
+        <div className="text-center py-3">
+          <p className="text-sm text-gray-400 flex items-center justify-center space-x-2">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+            <span>Connect your wallet to call circuits</span>
+          </p>
+        </div>
       )}
     </div>
   );
