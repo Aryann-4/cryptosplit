@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 interface WalletConnectProps {
   onConnect: (network: string) => void;
   connected: boolean;
@@ -25,16 +27,28 @@ export default function WalletConnect({ onConnect, connected, connecting, addres
     );
   }
 
+ const [network, setNetwork] = useState('preprod');
+
   return (
     <div className="flex items-center space-x-2">
       <select
-        onChange={(e) => onConnect(e.target.value)}
+        value={network}
+        onChange={(e) => setNetwork(e.target.value)}
         className="bg-white/[0.04] border border-white/[0.06] text-white text-sm rounded-xl px-3 py-2 focus:outline-none focus:border-indigo-500/50 appearance-none cursor-pointer"
       >
         <option value="preprod">Preprod</option>
         <option value="preview">Preview</option>
         <option value="local">Local</option>
       </select>
+      <button
+        onClick={() => onConnect(network)}
+        className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white text-sm font-medium rounded-xl px-4 py-2 hover:from-indigo-600 hover:to-purple-700 transition-all shadow-lg shadow-indigo-500/20"
+      >
+        Connect Wallet
+      </button>
+      {error && (
+        <span className="text-xs text-red-400 max-w-[200px] truncate" title={error}>{error}</span>
+      )}
     </div>
   );
 }
