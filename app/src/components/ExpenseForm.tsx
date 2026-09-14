@@ -1,163 +1,130 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import type { Member } from '../types.ts';
 import { bytesToHex } from '../crypto.ts';
+import { getMemberLabel } from '../store.ts';
 
 interface ExpenseFormProps {
   members: Member[];
   onSubmit: (expense: { amount: bigint; participantIds: Uint8Array[]; splitType: 'equal' | 'custom'; description: string }) => void;
-  disabled?: boolean;
 }
 
-export default function ExpenseForm({ members, onSubmit, disabled }: ExpenseFormProps) {
-  const [amount, setAmount] = useState('');
+export default function ExpenseForm({ members, onSubmit }: ExpenseFormProps) {
   const [description, setDescription] = useState('');
-  const [selectedMembers, setSelectedMembers] = useState<Set<string>>(new Set());
+  const [amount, setAmount] = useState('');
+  const [selectedParticipants, setSelectedParticipants] = useState<Set<number>>(new Set());
   const [splitType, setSplitType] = useState<'equal' | 'custom'>('equal');
 
-  const toggleMember = (memberId: string) => {
-    setSelectedMembers((prev) => {
-      const next = new Set(prev);
-      if (next.has(memberId)) next.delete(memberId);
-      else next.add(memberId);
-      return next;
-    });
+  const toggleParticipant = (index: number) => {
+    const updated = new Set(selectedParticipants);
+    if (updated.has(index)) updated.delete(index);
+    else updated.add(index);
+    setSelectedParticipants(updated);
   };
 
-  const selectAll = () => {
-    setSelectedMembers(new Set(members.filter(m => m.isActive).map((m) => bytesToHex(m.memberId))));
-  };
+  const selectAll = () => setSelectedParticipants(new Set(members.map((_, i) => i)));
+  const deselectAll = () => setSelectedParticipants(new Set());
 
-  const perPersonAmount = useMemo(() => {
-    if (!amount || selectedMembers.size === 0) return null;
-    return BigInt(Math.round(parseFloat(amount) * 100)) / BigInt(selectedMembers.size);
-  }, [amount, selectedMembers.size]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const amountBigint = BigInt(Math.round(parseFloat(amount) * 100));
-    if (amountBigint <= 0n || selectedMembers.size === 0) return;
-
+  const handleSubmit = () => {
+    if (!amount || selectedParticipants.size === 0) return;
+    const participantIds = [...selectedParticipants].map((i) => members[i].memberId);
     onSubmit({
-      amount: amountBigint,
-      participantIds: members.filter((m) => selectedMembers.has(bytesToHex(m.memberId))).map((m) => m.memberId),
+      amount: BigInt(Math.round(parseFloat(amount) * 100)),
+      participantIds,
       splitType,
       description,
     });
-
-    setAmount('');
     setDescription('');
-    setSelectedMembers(new Set());
+    setAmount('');
+    setSelectedParticipants(new Set());
   };
 
-  const isValid = amount && parseFloat(amount) > 0 && selectedMembers.size > 0;
+  const perPerson = selectedParticipants.size > 0 && amount
+    ? (parseFloat(amount) / selectedParticipants.size).toFixed(2)
+    : '0.00';
 
   return (
-    <form onSubmit={handleSubmit} className="glass p-6 space-y-5">
-      <div className="flex items-center space-x-2 mb-1">
-        <svg className="w-5 h-5 text-[#4c6ef5]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-        </svg>
-        <h3 className="text-lg font-semibold gradient-text">Add Expense</h3>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-surface-400 mb-1.5">Amount</label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-surface-500 font-medium">$</span>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              placeholder="0.00"
-              className="input-glass pl-7"
-              disabled={disabled}
-            />
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-surface-400 mb-1.5">Split Type</label>
-          <select
-            value={splitType}
-            onChange={(e) => setSplitType(e.target.value as 'equal' | 'custom')}
-            disabled={disabled}
-            className="input-glass bg-[#12121a]"
-          >
-            <option value="equal">Equal Split</option>
-            <option value="custom">Custom Amounts</option>
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-surface-400 mb-1.5">Description</label>
-        <input
-          type="text"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="What was this expense for?"
-          className="input-glass"
-          disabled={disabled}
-        />
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium text-surface-400">Split Among</label>
-          <div className="flex items-center space-x-3">
-            <span className="text-xs text-surface-600">{selectedMembers.size} of {members.filter(m => m.isActive).length}</span>
-            <button type="button" onClick={selectAll} className="text-xs text-[#4c6ef5] hover:text-[#748ffc] font-medium">Select All</button>
-          </div>
-        </div>
-        <div className="space-y-1.5 border border-white/[0.06] rounded-xl p-3 max-h-48 overflow-y-auto bg-white/[0.02]">
-          {members.filter(m => m.isActive).map((member) => {
-            const isSelected = selectedMembers.has(bytesToHex(member.memberId));
-            return (
-              <label
-                key={bytesToHex(member.memberId)}
-                className={`flex items-center space-x-3 p-2 rounded-lg cursor-pointer transition-all ${
-                  isSelected ? 'bg-[#4c6ef5]/10 border border-[#4c6ef5]/20' : 'hover:bg-white/[0.03] border border-transparent'
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={isSelected}
-                  onChange={() => toggleMember(bytesToHex(member.memberId))}
-                  disabled={disabled}
-                  className="rounded border-surface-600 text-[#4c6ef5] focus:ring-[#4c6ef5]"
-                />
-                <div className="w-6 h-6 rounded-full bg-[#4c6ef5]/20 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[#4c6ef5] text-xs font-bold">{member.label.charAt(0)}</span>
-                </div>
-                <span className="text-sm text-surface-300 font-medium">{member.label}</span>
-              </label>
-            );
-          })}
-        </div>
-      </div>
-
-      {perPersonAmount !== null && selectedMembers.size > 1 && (
-        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
-          <p className="text-xs text-surface-500 mb-1">Per person</p>
-          <p className="text-lg font-bold gradient-text-accent">
-            ${(Number(perPersonAmount) / 100).toFixed(2)}
-            <span className="text-sm font-normal text-surface-500 ml-1">each</span>
-          </p>
-        </div>
-      )}
-
-      <button
-        type="submit"
-        disabled={disabled || !isValid}
-        className="w-full btn-primary flex items-center justify-center space-x-2 disabled:opacity-50"
-      >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="glass p-5">
+      <h3 className="text-sm font-semibold text-white mb-4 flex items-center space-x-2">
+        <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
         </svg>
         <span>Add Expense</span>
-      </button>
-    </form>
+      </h3>
+
+      <div className="space-y-3">
+        <div>
+          <label className="text-xs text-surface-500 mb-1 block">Description</label>
+          <input
+            type="text"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="What was this expense for?"
+            className="input-glass w-full"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs text-surface-500 mb-1 block">Amount ($)</label>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0.00"
+            min="0"
+            step="0.01"
+            className="input-glass w-full text-2xl font-bold"
+          />
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-xs text-surface-500">Split between</label>
+            <div className="flex space-x-2">
+              <button onClick={selectAll} className="text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors">All</button>
+              <button onClick={deselectAll} className="text-[10px] text-surface-600 hover:text-surface-400 transition-colors">None</button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {members.map((member, index) => (
+              <button
+                key={index}
+                onClick={() => toggleParticipant(index)}
+                className={`flex items-center space-x-2 p-2.5 rounded-xl border text-left transition-all text-sm ${
+                  selectedParticipants.has(index)
+                    ? 'bg-indigo-500/10 border-indigo-500/30 text-indigo-300'
+                    : 'bg-white/[0.02] border-white/[0.04] text-surface-400 hover:bg-white/[0.04]'
+                }`}
+              >
+                <div className={`w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0 ${
+                  selectedParticipants.has(index) ? 'bg-indigo-500' : 'bg-white/[0.06]'
+                }`}>
+                  {selectedParticipants.has(index) && (
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                </div>
+                <span className="truncate">{getMemberLabel(member.memberId)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {selectedParticipants.size > 0 && amount && (
+          <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] flex justify-between items-center">
+            <span className="text-xs text-surface-500">Per person ({selectedParticipants.size} members)</span>
+            <span className="text-lg font-bold text-white">${perPerson}</span>
+          </div>
+        )}
+
+        <button
+          onClick={handleSubmit}
+          disabled={!amount || selectedParticipants.size === 0}
+          className="btn-primary w-full disabled:opacity-40"
+        >
+          Add Expense
+        </button>
+      </div>
+    </div>
   );
 }

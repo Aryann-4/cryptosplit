@@ -64,6 +64,14 @@ function recalculateNetDebts(contractAddress: string): void {
   );
 }
 
+export function getMemberLabel(memberId: Uint8Array): string {
+  for (const group of state.groups.values()) {
+    const member = group.members.find((m) => bytesToHex(m.memberId) === bytesToHex(memberId));
+    if (member) return member.label;
+  }
+  return bytesToHex(memberId).slice(0, 8);
+}
+
 export function exportGroupData(contractAddress: string): string {
   const group = state.groups.get(contractAddress);
   const expenses = state.expenses.get(contractAddress) ?? [];
