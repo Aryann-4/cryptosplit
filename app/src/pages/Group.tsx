@@ -90,7 +90,7 @@ export default function Group() {
     const memberId = getMemberId(secret);
     setCircuitStatus({ message: 'Generating ZK proof...', type: 'info' });
     try {
-      const result = await callCircuit('add-member', { memberSecretHex: bytesToHex(secret) });
+      await callCircuit('add-member', { memberSecretHex: bytesToHex(secret) });
       const newMember: Member = { memberId, label: `Member ${group.members.length + 1}`, isActive: true };
       setGroup({ ...group, members: [...group.members, newMember] });
       setCircuitStatus({ message: 'Member added!', type: 'success' });
@@ -113,14 +113,11 @@ export default function Group() {
 
   if (!group) {
     return (
-      <div className="text-center py-24">
-        <div className="w-16 h-16 rounded-2xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-surface-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <h2 className="text-xl font-bold text-white mb-2">Group not found</h2>
-        <button onClick={() => navigate('/')} className="text-indigo-400 hover:text-indigo-300 font-medium text-sm transition-colors">Back to Home</button>
+      <div className="card text-center py-16">
+        <p className="text-sm text-ash mb-3">Group not found</p>
+        <button onClick={() => navigate('/')} className="text-action text-sm font-medium hover:text-action-light transition-colors">
+          Back to Home
+        </button>
       </div>
     );
   }
@@ -134,18 +131,18 @@ export default function Group() {
   const totalOwed = myDebts.reduce((sum, d) => sum + d.amount, 0n);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
-          <button onClick={() => navigate('/')} className="text-sm text-indigo-400 hover:text-indigo-300 mb-2 flex items-center space-x-1 transition-colors">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <button onClick={() => navigate('/')} className="text-xs text-action hover:text-action-light mb-2 flex items-center gap-1 transition-colors">
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            <span>Back</span>
+            Back
           </button>
-          <h1 className="text-2xl font-bold text-white">Expense Group</h1>
-          <p className="text-xs text-surface-600 font-mono mt-1">{group.contractAddress}</p>
+          <h1 className="text-lg font-semibold text-cloud">Expense Group</h1>
+          <p className="mono-data text-[10px] mt-0.5">{group.contractAddress}</p>
         </div>
         <WalletConnect
           onConnect={wallet.connect}
@@ -158,58 +155,49 @@ export default function Group() {
         />
       </div>
 
-      {/* Balance Summary Card */}
-      <div className="glass p-6 border border-white/[0.08]">
+      {/* Stats Bar */}
+      <div className="card p-4">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="text-center sm:text-left">
-            <p className="text-xs text-surface-500 uppercase tracking-wider mb-1">Members</p>
-            <p className="text-2xl font-bold text-white">{group.members.length}</p>
-          </div>
-          <div className="text-center sm:text-left">
-            <p className="text-xs text-surface-500 uppercase tracking-wider mb-1">Expenses</p>
-            <p className="text-2xl font-bold text-white">{expenses.length}</p>
-          </div>
-          <div className="text-center sm:text-left">
-            <p className="text-xs text-surface-500 uppercase tracking-wider mb-1">Total</p>
-            <p className="text-2xl font-bold text-white">{totalExpense > 0n ? `$${(Number(totalExpense) / 100).toFixed(0)}` : '$0'}</p>
-          </div>
-          {wallet.connected && (
-            <div className="text-center sm:text-left">
-              <p className="text-xs text-surface-500 uppercase tracking-wider mb-1">You Owe</p>
-              <p className={`text-2xl font-bold ${totalOwed > 0n ? 'text-red-400' : 'text-emerald-400'}`}>
-                {totalOwed > 0n ? `$${(Number(totalOwed) / 100).toFixed(2)}` : '$0'}
-              </p>
+          {[
+            { label: 'Members', value: group.members.length },
+            { label: 'Expenses', value: expenses.length },
+            { label: 'Total', value: totalExpense > 0n ? `$${(Number(totalExpense) / 100).toFixed(0)}` : '$0' },
+            ...(wallet.connected ? [{ label: 'You Owe', value: totalOwed > 0n ? `$${(Number(totalOwed) / 100).toFixed(2)}` : '$0' }] : []),
+          ].map((stat) => (
+            <div key={stat.label}>
+              <div className="label !text-[9px] mb-1">{stat.label}</div>
+              <div className="text-lg font-semibold text-cloud">{stat.value}</div>
             </div>
-          )}
+          ))}
         </div>
       </div>
 
       {/* Status Toast */}
       {circuitStatus && (
-        <div className={`rounded-xl px-4 py-3 text-sm font-medium border animate-slide-up ${
+        <div className={`px-3 py-2 rounded-md text-xs font-medium border animate-slide-up ${
           circuitStatus.type === 'error' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
-          circuitStatus.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' :
-          'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+          circuitStatus.type === 'success' ? 'bg-mint/10 text-mint border-mint/20' :
+          'bg-action/10 text-action border-action/20'
         }`}>
-          <div className="flex items-center space-x-2">
-            {circuitStatus.type === 'info' && <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
-            {circuitStatus.type === 'success' && <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>}
-            {circuitStatus.type === 'error' && <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>}
+          <div className="flex items-center gap-2">
+            {circuitStatus.type === 'info' && <svg className="animate-spin h-3 w-3" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
+            {circuitStatus.type === 'success' && <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>}
+            {circuitStatus.type === 'error' && <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" /></svg>}
             <span>{circuitStatus.message}</span>
           </div>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex space-x-1 bg-white/[0.02] rounded-xl p-1 border border-white/[0.04]">
+      <div className="flex gap-0.5 border-b border-shell-4">
         {(['expenses', 'balances', 'members'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+            className={`px-3 py-2 text-xs font-medium transition-colors border-b-2 -mb-px ${
               activeTab === tab
-                ? 'bg-white/[0.08] text-white shadow-sm'
-                : 'text-surface-500 hover:text-surface-300'
+                ? 'text-cloud border-action'
+                : 'text-ash border-transparent hover:text-slate'
             }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}
@@ -220,9 +208,9 @@ export default function Group() {
         ))}
       </div>
 
-      {/* Tab Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      {/* Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="lg:col-span-2 space-y-4">
           {activeTab === 'expenses' && (
             <>
               {wallet.connected && <ExpenseForm members={group.members} onSubmit={handleAddExpense} />}
@@ -237,7 +225,7 @@ export default function Group() {
           )}
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {wallet.connected && activeTab !== 'balances' && (
             <BalanceView netDebts={netDebts} members={group.members} currentMemberId={wallet.coinPublicKeyBytes ?? undefined} />
           )}
