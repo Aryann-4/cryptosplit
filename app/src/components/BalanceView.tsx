@@ -12,7 +12,8 @@ export default function BalanceView({ netDebts, members, currentMemberId }: Bala
   if (netDebts.length === 0) {
     return (
       <div className="glass text-center py-10 animate-fade-in">
-        <p className="text-sm text-ash">No outstanding balances</p>
+        <p className="text-sm text-ash">No outstanding debts</p>
+        <p className="mono-data text-[10px] mt-1 text-surface-4">Add expenses to see settlements</p>
       </div>
     );
   }
@@ -30,7 +31,7 @@ export default function BalanceView({ netDebts, members, currentMemberId }: Bala
           return (
             <div
               key={i}
-              className="glass-subtle p-3 hover:border-white/[0.1] hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] transition-all duration-300 animate-slide-up"
+              className="glass-subtle p-3 hover:border-white/[0.1] hover:shadow-card-hover transition-all duration-300 animate-slide-up"
               style={{ animationDelay: `${i * 0.05}s` }}
             >
               <div className="flex items-center justify-between mb-2">
@@ -42,7 +43,7 @@ export default function BalanceView({ netDebts, members, currentMemberId }: Bala
                     {debtorLabel}
                   </span>
                 </div>
-                <span className="text-[10px] text-surface-5">owes</span>
+                <span className="text-[10px] text-surface-4">owes</span>
                 <div className="flex items-center gap-2">
                   <span className={`text-sm ${isCurrentCreditor ? 'text-mint font-medium' : 'text-ash'}`}>
                     {creditorLabel}

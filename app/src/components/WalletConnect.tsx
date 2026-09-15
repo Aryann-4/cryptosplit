@@ -40,10 +40,7 @@ export default function WalletConnect({ onConnect, connected, connecting, addres
         <option value="preview">Preview</option>
         <option value="local">Local</option>
       </select>
-      <button
-        onClick={() => onConnect(network)}
-        className="btn-primary text-sm"
-      >
+      <button onClick={() => onConnect(network)} className="btn-primary">
         {connecting ? 'Connecting...' : 'Connect Wallet'}
       </button>
       {error && <span className="text-xs text-red-400 max-w-[180px] truncate" title={error}>{error}</span>}

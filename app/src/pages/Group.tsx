@@ -132,10 +132,9 @@ export default function Group() {
 
   return (
     <div className="space-y-5">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in">
         <div>
-          <button onClick={() => navigate('/')} className="text-sm text-accent hover:text-accent-hover mb-2 flex items-center gap-1.5 transition-colors">
+          <button onClick={() => navigate('/')} className="text-sm text-gold hover:text-gold-light mb-2 flex items-center gap-1.5 transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -155,7 +154,6 @@ export default function Group() {
         />
       </div>
 
-      {/* Stats Bar */}
       <div className="glass p-5 animate-slide-up delay-1">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
           {[
@@ -172,12 +170,11 @@ export default function Group() {
         </div>
       </div>
 
-      {/* Status Toast */}
       {circuitStatus && (
         <div className={`glass-subtle px-4 py-3 text-sm font-medium border animate-scale-in ${
           circuitStatus.type === 'error' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
           circuitStatus.type === 'success' ? 'bg-mint/10 text-mint border-mint/20' :
-          'bg-accent/10 text-accent border-accent/20'
+          'bg-gold/10 text-gold border-gold/20'
         }`}>
           <div className="flex items-center gap-2.5">
             {circuitStatus.type === 'info' && <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>}
@@ -188,15 +185,14 @@ export default function Group() {
         </div>
       )}
 
-      {/* Tabs */}
       <div className="flex gap-1 p-1 glass-subtle animate-slide-up delay-2">
         {(['expenses', 'balances', 'members'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-300 ${
+            className={`flex-1 py-2.5 px-4 rounded-full text-sm font-medium transition-all duration-300 ${
               activeTab === tab
-                ? 'bg-accent text-white shadow-[0_0_20px_rgba(99,102,241,0.3)]'
+                ? 'bg-gold text-[#0a0a0f] shadow-[0_0_16px_rgba(251,191,36,0.3)]'
                 : 'text-ash hover:text-white hover:bg-white/[0.04]'
             }`}
           >
@@ -208,7 +204,6 @@ export default function Group() {
         ))}
       </div>
 
-      {/* Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 space-y-5">
           {activeTab === 'expenses' && (

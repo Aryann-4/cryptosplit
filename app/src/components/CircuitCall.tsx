@@ -36,9 +36,9 @@ export default function CircuitCall({ connected, onCallCircuit, circuitResult, o
             <button
               key={circuit.id}
               onClick={() => { setSelectedCircuit(circuit); setArgs({}); onReset(); }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-300 ${
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${
                 selectedCircuit.id === circuit.id
-                  ? 'bg-accent text-white shadow-[0_0_16px_rgba(99,102,241,0.3)]'
+                  ? 'bg-gold text-[#0a0a0f] shadow-[0_0_16px_rgba(251,191,36,0.3)]'
                   : 'bg-white/[0.04] border border-white/[0.06] text-ash hover:text-white hover:bg-white/[0.08]'
               }`}
             >
@@ -69,10 +69,9 @@ export default function CircuitCall({ connected, onCallCircuit, circuitResult, o
         {circuitResult.status === 'success' && (
           <div className="glass-subtle p-3 border-mint/20 animate-scale-in">
             <p className="text-sm text-mint font-medium">Success</p>
-            {circuitResult.txHash && (
+            {circuitResult.txHash ? (
               <p className="mono-data text-[10px] mt-1 break-all">{circuitResult.txHash}</p>
-            )}
-            {!circuitResult.txHash && (
+            ) : (
               <p className="mono-data text-[10px] mt-1">Circuit call completed (demo mode)</p>
             )}
           </div>

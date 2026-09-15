@@ -11,7 +11,6 @@ export default function ExpenseForm({ members, onSubmit }: ExpenseFormProps) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [selectedParticipants, setSelectedParticipants] = useState<Set<number>>(new Set());
-  const [splitType, setSplitType] = useState<'equal' | 'custom'>('equal');
 
   const toggleParticipant = (index: number) => {
     const updated = new Set(selectedParticipants);
@@ -29,7 +28,7 @@ export default function ExpenseForm({ members, onSubmit }: ExpenseFormProps) {
     onSubmit({
       amount: BigInt(Math.round(parseFloat(amount) * 100)),
       participantIds,
-      splitType,
+      splitType: 'equal',
       description,
     });
     setDescription('');
@@ -68,8 +67,8 @@ export default function ExpenseForm({ members, onSubmit }: ExpenseFormProps) {
           <div className="flex items-center justify-between mb-2.5">
             <span className="label !text-[9px]">Split between</span>
             <div className="flex gap-2.5">
-              <button onClick={selectAll} className="text-xs text-accent hover:text-accent-hover transition-colors">All</button>
-              <button onClick={deselectAll} className="text-xs text-surface-5 hover:text-ash transition-colors">None</button>
+              <button onClick={selectAll} className="text-xs text-gold hover:text-gold-light transition-colors">All</button>
+              <button onClick={deselectAll} className="text-xs text-surface-4 hover:text-ash transition-colors">None</button>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -79,15 +78,15 @@ export default function ExpenseForm({ members, onSubmit }: ExpenseFormProps) {
                 onClick={() => toggleParticipant(index)}
                 className={`flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all duration-300 text-sm ${
                   selectedParticipants.has(index)
-                    ? 'bg-accent/10 border-accent/30 text-accent shadow-[0_0_12px_rgba(99,102,241,0.15)]'
+                    ? 'bg-gold/10 border-gold/30 text-gold shadow-[0_0_12px_rgba(251,191,36,0.15)]'
                     : 'bg-white/[0.02] border-white/[0.06] text-ash hover:bg-white/[0.04] hover:border-white/[0.1]'
                 }`}
               >
                 <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
-                  selectedParticipants.has(index) ? 'bg-accent shadow-[0_0_12px_rgba(99,102,241,0.3)]' : 'bg-white/[0.06]'
+                  selectedParticipants.has(index) ? 'bg-gold shadow-[0_0_12px_rgba(251,191,36,0.3)]' : 'bg-white/[0.06]'
                 }`}>
                   {selectedParticipants.has(index) && (
-                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-3 h-3 text-[#0a0a0f]" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   )}

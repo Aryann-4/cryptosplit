@@ -25,12 +25,12 @@ export default function SettlementPanel({ netDebts, members, currentMemberId, on
       {myDebts.length === 0 ? (
         <div className="glass-subtle p-4 text-center">
           <p className="text-sm text-ash">No outstanding debts</p>
-          <p className="mono-data text-[10px] mt-1 text-surface-5">Add expenses to see settlements here</p>
+          <p className="mono-data text-[10px] mt-1 text-surface-4">Add expenses to see settlements</p>
         </div>
       ) : (
         <>
           <div className="glass-subtle p-4 mb-4 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-[100px] h-[100px] bg-accent/[0.06] rounded-full blur-[40px] pointer-events-none" />
+            <div className="absolute top-0 right-0 w-[100px] h-[100px] bg-gold/[0.06] rounded-full blur-[40px] pointer-events-none" />
             <div className="relative">
               <div className="label !text-[9px] mb-1">Total you owe</div>
               <div className="text-2xl font-bold text-white">${(Number(totalOwed) / 100).toFixed(2)}</div>
@@ -43,8 +43,8 @@ export default function SettlementPanel({ netDebts, members, currentMemberId, on
               return (
                 <div key={i} className="glass-subtle p-3 flex items-center justify-between hover:border-white/[0.08] transition-all duration-300">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-mint/10 border border-mint/20 flex items-center justify-center">
-                      <span className="text-xs font-medium text-mint">{creditorLabel.charAt(0)}</span>
+                    <div className="w-8 h-8 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center">
+                      <span className="text-xs font-medium text-gold">{creditorLabel.charAt(0)}</span>
                     </div>
                     <div>
                       <p className="text-sm text-white font-medium">{creditorLabel}</p>
