@@ -11,14 +11,14 @@ interface BalanceViewProps {
 export default function BalanceView({ netDebts, members, currentMemberId }: BalanceViewProps) {
   if (netDebts.length === 0) {
     return (
-      <div className="glass text-center py-10">
+      <div className="glass text-center py-10 animate-fade-in">
         <p className="text-sm text-ash">No outstanding balances</p>
       </div>
     );
   }
 
   return (
-    <div className="glass p-5">
+    <div className="glass p-5 animate-fade-in">
       <h3 className="label mb-4">Balances</h3>
       <div className="space-y-2">
         {netDebts.map((debt, i) => {
@@ -28,7 +28,11 @@ export default function BalanceView({ netDebts, members, currentMemberId }: Bala
           const isCurrentCreditor = currentMemberId && bytesToHex(debt.creditorId) === bytesToHex(currentMemberId);
 
           return (
-            <div key={i} className="glass-subtle p-3 hover:border-white/[0.08] transition-colors">
+            <div
+              key={i}
+              className="glass-subtle p-3 hover:border-white/[0.1] hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] transition-all duration-300 animate-slide-up"
+              style={{ animationDelay: `${i * 0.05}s` }}
+            >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center">

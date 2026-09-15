@@ -42,7 +42,7 @@ export default function ExpenseForm({ members, onSubmit }: ExpenseFormProps) {
     : '0.00';
 
   return (
-    <div className="glass p-5">
+    <div className="glass p-5 animate-slide-up">
       <h3 className="label mb-4">Add Expense</h3>
 
       <div className="space-y-3">
@@ -77,14 +77,14 @@ export default function ExpenseForm({ members, onSubmit }: ExpenseFormProps) {
               <button
                 key={index}
                 onClick={() => toggleParticipant(index)}
-                className={`flex items-center gap-2.5 p-3 rounded-lg border text-left transition-all text-sm ${
+                className={`flex items-center gap-2.5 p-3 rounded-xl border text-left transition-all duration-300 text-sm ${
                   selectedParticipants.has(index)
-                    ? 'bg-accent/10 border-accent/30 text-accent'
-                    : 'bg-white/[0.02] border-white/[0.06] text-ash hover:bg-white/[0.04]'
+                    ? 'bg-accent/10 border-accent/30 text-accent shadow-[0_0_12px_rgba(99,102,241,0.15)]'
+                    : 'bg-white/[0.02] border-white/[0.06] text-ash hover:bg-white/[0.04] hover:border-white/[0.1]'
                 }`}
               >
-                <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 ${
-                  selectedParticipants.has(index) ? 'bg-accent' : 'bg-white/[0.06]'
+                <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
+                  selectedParticipants.has(index) ? 'bg-accent shadow-[0_0_12px_rgba(99,102,241,0.3)]' : 'bg-white/[0.06]'
                 }`}>
                   {selectedParticipants.has(index) && (
                     <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -99,7 +99,7 @@ export default function ExpenseForm({ members, onSubmit }: ExpenseFormProps) {
         </div>
 
         {selectedParticipants.size > 0 && amount && (
-          <div className="glass-subtle p-3 flex justify-between items-center">
+          <div className="glass-subtle p-3 flex justify-between items-center animate-scale-in">
             <span className="mono-data text-[10px]">Per person ({selectedParticipants.size})</span>
             <span className="text-lg font-bold text-white">${perPerson}</span>
           </div>

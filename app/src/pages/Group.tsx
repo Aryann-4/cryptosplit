@@ -113,7 +113,7 @@ export default function Group() {
 
   if (!group) {
     return (
-      <div className="glass text-center py-20">
+      <div className="glass text-center py-20 animate-fade-in">
         <p className="text-sm text-ash mb-4">Group not found</p>
         <button onClick={() => navigate('/')} className="btn-primary">
           Back to Home
@@ -133,7 +133,7 @@ export default function Group() {
   return (
     <div className="space-y-5">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in">
         <div>
           <button onClick={() => navigate('/')} className="text-sm text-accent hover:text-accent-hover mb-2 flex items-center gap-1.5 transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -156,7 +156,7 @@ export default function Group() {
       </div>
 
       {/* Stats Bar */}
-      <div className="glass p-5">
+      <div className="glass p-5 animate-slide-up delay-1">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
           {[
             { label: 'Members', value: group.members.length },
@@ -174,7 +174,7 @@ export default function Group() {
 
       {/* Status Toast */}
       {circuitStatus && (
-        <div className={`glass-subtle px-4 py-3 text-sm font-medium border animate-slide-up ${
+        <div className={`glass-subtle px-4 py-3 text-sm font-medium border animate-scale-in ${
           circuitStatus.type === 'error' ? 'bg-red-500/10 text-red-400 border-red-500/20' :
           circuitStatus.type === 'success' ? 'bg-mint/10 text-mint border-mint/20' :
           'bg-accent/10 text-accent border-accent/20'
@@ -189,14 +189,14 @@ export default function Group() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 p-1 glass-subtle">
+      <div className="flex gap-1 p-1 glass-subtle animate-slide-up delay-2">
         {(['expenses', 'balances', 'members'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
+            className={`flex-1 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-300 ${
               activeTab === tab
-                ? 'bg-accent text-white shadow-glow-accent'
+                ? 'bg-accent text-white shadow-[0_0_20px_rgba(99,102,241,0.3)]'
                 : 'text-ash hover:text-white hover:bg-white/[0.04]'
             }`}
           >
@@ -212,16 +212,20 @@ export default function Group() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <div className="lg:col-span-2 space-y-5">
           {activeTab === 'expenses' && (
-            <>
+            <div className="animate-fade-in">
               {wallet.connected && <ExpenseForm members={group.members} onSubmit={handleAddExpense} />}
               <ExpenseList expenses={expenses} members={group.members} />
-            </>
+            </div>
           )}
           {activeTab === 'balances' && (
-            <BalanceView netDebts={netDebts} members={group.members} currentMemberId={wallet.coinPublicKeyBytes ?? undefined} />
+            <div className="animate-fade-in">
+              <BalanceView netDebts={netDebts} members={group.members} currentMemberId={wallet.coinPublicKeyBytes ?? undefined} />
+            </div>
           )}
           {activeTab === 'members' && (
-            <MemberList members={group.members} onAddMember={wallet.connected ? handleAddMember : undefined} />
+            <div className="animate-fade-in">
+              <MemberList members={group.members} onAddMember={wallet.connected ? handleAddMember : undefined} />
+            </div>
           )}
         </div>
 

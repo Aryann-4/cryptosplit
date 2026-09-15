@@ -27,7 +27,7 @@ export default function CircuitCall({ connected, onCallCircuit, circuitResult, o
   };
 
   return (
-    <div className="glass p-5">
+    <div className="glass p-5 animate-slide-up">
       <h3 className="label mb-4">Circuit Call</h3>
 
       <div className="space-y-3">
@@ -36,10 +36,10 @@ export default function CircuitCall({ connected, onCallCircuit, circuitResult, o
             <button
               key={circuit.id}
               onClick={() => { setSelectedCircuit(circuit); setArgs({}); onReset(); }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-300 ${
                 selectedCircuit.id === circuit.id
-                  ? 'bg-accent text-white shadow-glow-accent'
-                  : 'bg-white/[0.04] border border-white/[0.06] text-ash hover:text-white hover:bg-white/[0.06]'
+                  ? 'bg-accent text-white shadow-[0_0_16px_rgba(99,102,241,0.3)]'
+                  : 'bg-white/[0.04] border border-white/[0.06] text-ash hover:text-white hover:bg-white/[0.08]'
               }`}
             >
               {circuit.label}
@@ -67,14 +67,14 @@ export default function CircuitCall({ connected, onCallCircuit, circuitResult, o
         </button>
 
         {circuitResult.status === 'success' && circuitResult.txHash && (
-          <div className="glass-subtle p-3 border-mint/20">
+          <div className="glass-subtle p-3 border-mint/20 animate-scale-in">
             <p className="text-sm text-mint font-medium">Success</p>
             <p className="mono-data text-[10px] mt-1 break-all">{circuitResult.txHash}</p>
           </div>
         )}
 
         {circuitResult.status === 'error' && (
-          <div className="glass-subtle p-3 border-red-500/20">
+          <div className="glass-subtle p-3 border-red-500/20 animate-scale-in">
             <p className="text-sm text-red-400 font-medium">Error</p>
             <p className="mono-data text-[10px] mt-1">{circuitResult.error}</p>
           </div>

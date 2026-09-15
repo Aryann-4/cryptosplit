@@ -8,7 +8,7 @@ interface MemberListProps {
 
 export default function MemberList({ members, onAddMember }: MemberListProps) {
   return (
-    <div className="glass p-5">
+    <div className="glass p-5 animate-fade-in">
       <div className="flex items-center justify-between mb-4">
         <h3 className="label">Members ({members.length})</h3>
       </div>
@@ -17,7 +17,11 @@ export default function MemberList({ members, onAddMember }: MemberListProps) {
         {members.map((member, index) => {
           const label = getMemberLabel(member.memberId);
           return (
-            <div key={index} className="glass-subtle p-3 flex items-center justify-between hover:border-white/[0.08] transition-colors">
+            <div
+              key={index}
+              className="glass-subtle p-3 flex items-center justify-between hover:border-white/[0.1] hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] transition-all duration-300 animate-slide-up"
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent/20 to-blue/20 border border-accent/20 flex items-center justify-center">
                   <span className="text-xs font-medium text-accent">{label.charAt(0)}</span>

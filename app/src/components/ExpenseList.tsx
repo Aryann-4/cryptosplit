@@ -17,7 +17,7 @@ function timeAgo(timestamp: number) {
 export default function ExpenseList({ expenses, members }: ExpenseListProps) {
   if (expenses.length === 0) {
     return (
-      <div className="glass text-center py-10">
+      <div className="glass text-center py-10 animate-fade-in">
         <p className="text-sm text-ash">No expenses yet</p>
       </div>
     );
@@ -25,15 +25,19 @@ export default function ExpenseList({ expenses, members }: ExpenseListProps) {
 
   return (
     <div className="space-y-2">
-      {expenses.slice().reverse().map((expense) => {
+      {expenses.slice().reverse().map((expense, i) => {
         const payerLabel = getMemberLabel(expense.payer);
         const perPerson = Number(expense.amount) / expense.participants.length / 100;
 
         return (
-          <div key={expense.id} className="glass p-4 hover:border-white/[0.1] transition-colors">
+          <div
+            key={expense.id}
+            className="glass p-4 hover:border-white/[0.12] hover:shadow-[0_4px_16px_rgba(0,0,0,0.2)] transition-all duration-300 animate-slide-up"
+            style={{ animationDelay: `${i * 0.05}s` }}
+          >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-blue/20 border border-accent/20 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent/20 to-blue/20 border border-accent/20 flex items-center justify-center flex-shrink-0 group-hover:shadow-[0_0_12px_rgba(99,102,241,0.2)] transition-shadow duration-300">
                   <span className="text-sm font-medium text-accent">{payerLabel.charAt(0)}</span>
                 </div>
                 <div>

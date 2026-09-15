@@ -38,32 +38,31 @@ export default function Home() {
       {!wallet.connected ? (
         <div className="space-y-8">
           {/* Hero */}
-          <div className="glass p-8 sm:p-12 lg:p-16 text-center relative overflow-hidden">
-            {/* Decorative gradient */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-accent/[0.06] rounded-full blur-[100px] pointer-events-none" />
+          <div className="glass p-8 sm:p-12 lg:p-16 text-center relative overflow-hidden animate-fade-in">
+            {/* Inner floating orbs */}
+            <div className="absolute top-0 left-1/4 w-[300px] h-[300px] bg-accent/[0.08] rounded-full blur-[80px] pointer-events-none animate-[orb-drift-1_15s_ease-in-out_infinite_alternate]" />
+            <div className="absolute bottom-0 right-1/4 w-[250px] h-[250px] bg-blue/[0.06] rounded-full blur-[60px] pointer-events-none animate-[orb-drift-2_18s_ease-in-out_infinite_alternate]" />
 
             <div className="relative">
               {/* Status pill */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-subtle mb-8">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-subtle mb-8 animate-slide-up delay-1">
                 <span className="w-2 h-2 bg-mint rounded-full animate-pulse" />
                 <span className="label !text-[10px] !tracking-[0.15em]">Live on Midnight Preprod</span>
               </div>
 
-              {/* Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-4 leading-[1.1]">
-                Split expenses.
+              {/* Headline with gradient text */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-4 leading-[1.1] animate-slide-up delay-2">
+                <span className="text-white">Split expenses.</span>
                 <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-blue to-accent">
-                  Keep them private.
-                </span>
+                <span className="gradient-text">Keep them private.</span>
               </h1>
 
-              <p className="text-base sm:text-lg text-ash max-w-lg mx-auto mb-10 leading-relaxed">
+              <p className="text-base sm:text-lg text-ash max-w-lg mx-auto mb-10 leading-relaxed animate-slide-up delay-3">
                 Zero-knowledge bill splitting on Midnight Network. Your wallet address, names, and spending habits never touch the blockchain.
               </p>
 
               {/* CTA */}
-              <div className="flex justify-center mb-12">
+              <div className="flex justify-center mb-12 animate-slide-up delay-4">
                 <WalletConnect
                   onConnect={wallet.connect}
                   connected={wallet.connected}
@@ -76,7 +75,7 @@ export default function Home() {
               </div>
 
               {/* Stats */}
-              <div className="flex justify-center gap-12 sm:gap-16">
+              <div className="flex justify-center gap-12 sm:gap-16 animate-slide-up delay-5">
                 {[
                   { value: '0', label: 'Addresses On-Chain' },
                   { value: 'ZK', label: 'Proofs Generated' },
@@ -92,7 +91,7 @@ export default function Home() {
           </div>
 
           {/* How It Works */}
-          <div>
+          <div className="animate-slide-up delay-3">
             <h2 className="label mb-5">How it works</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
@@ -126,12 +125,16 @@ export default function Home() {
                     </svg>
                   ),
                 },
-              ].map((item) => (
-                <div key={item.step} className="glass p-6 hover:border-white/[0.1] transition-all group">
+              ].map((item, i) => (
+                <div
+                  key={item.step}
+                  className="glass p-6 group hover:border-white/[0.12] hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all duration-300 animate-slide-up"
+                  style={{ animationDelay: `${0.2 + i * 0.1}s` }}
+                >
                   <div className="flex items-center gap-3 mb-4">
                     <span className="mono-data text-accent">{item.step}</span>
                     <div className="h-px flex-1 bg-white/[0.06]" />
-                    <div className="w-9 h-9 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:bg-accent/20 transition-colors">
+                    <div className="w-9 h-9 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:bg-accent/20 group-hover:shadow-[0_0_20px_rgba(99,102,241,0.2)] transition-all duration-300">
                       {item.icon}
                     </div>
                   </div>
@@ -142,12 +145,14 @@ export default function Home() {
             </div>
           </div>
 
-          <PrivacyDashboard />
+          <div className="animate-slide-up delay-4">
+            <PrivacyDashboard />
+          </div>
         </div>
       ) : (
         <>
           {/* Connected Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-fade-in">
             <div>
               <h1 className="text-xl font-bold text-white">Your Groups</h1>
               <p className="mono-data text-[11px] mt-1">{groups.length} group{groups.length !== 1 ? 's' : ''}</p>
@@ -171,7 +176,7 @@ export default function Home() {
           {/* Create Modal */}
           {showCreate && (
             <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-              <div className="glass w-full max-w-md p-6 animate-slide-up">
+              <div className="glass w-full max-w-md p-6 animate-scale-in">
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="text-lg font-semibold text-white">New Group</h2>
                   <button onClick={() => { setShowCreate(false); setMemberInputs(['']); }} className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-ash hover:text-white hover:bg-white/[0.08] transition-all">
@@ -183,7 +188,7 @@ export default function Home() {
 
                 <div className="space-y-2.5 mb-4">
                   {memberInputs.map((input, index) => (
-                    <div key={index} className="flex items-center gap-2.5">
+                    <div key={index} className="flex items-center gap-2.5 animate-slide-up" style={{ animationDelay: `${index * 0.05}s` }}>
                       <div className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
                         <span className="mono-data text-[10px] text-accent">{index + 1}</span>
                       </div>
@@ -206,7 +211,7 @@ export default function Home() {
                   ))}
                 </div>
 
-                <button onClick={addMemberInput} className="w-full border border-dashed border-white/[0.08] rounded-lg py-2.5 text-sm text-ash hover:text-accent hover:border-accent/30 transition-all mb-5">
+                <button onClick={addMemberInput} className="w-full border border-dashed border-white/[0.08] rounded-xl py-2.5 text-sm text-ash hover:text-accent hover:border-accent/30 transition-all duration-300 mb-5">
                   + Add Member
                 </button>
 
@@ -221,17 +226,18 @@ export default function Home() {
           {/* Groups Grid */}
           {groups.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {groups.map((group) => (
+              {groups.map((group, i) => (
                 <button
                   key={group.contractAddress}
                   onClick={() => navigate(`/group/${group.contractAddress}`)}
-                  className="glass p-5 text-left hover:border-white/[0.1] hover:shadow-card-hover transition-all group"
+                  className="glass p-5 text-left hover:border-white/[0.12] hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] hover:scale-[1.02] transition-all duration-300 group animate-slide-up"
+                  style={{ animationDelay: `${i * 0.1}s` }}
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-blue flex items-center justify-center shadow-glow-accent">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-blue flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.3)] group-hover:shadow-[0_0_30px_rgba(99,102,241,0.5)] transition-shadow duration-300">
                       <span className="text-white font-bold">{group.members.length}</span>
                     </div>
-                    <svg className="w-5 h-5 text-surface-4 group-hover:text-ash transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-5 h-5 text-surface-4 group-hover:text-accent group-hover:translate-x-1 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
@@ -244,8 +250,8 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="glass text-center py-16">
-              <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4">
+            <div className="glass text-center py-16 animate-fade-in">
+              <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4 pulse-glow">
                 <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                 </svg>
