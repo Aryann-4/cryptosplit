@@ -8,27 +8,27 @@ interface MemberListProps {
 
 export default function MemberList({ members, onAddMember }: MemberListProps) {
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-3">
+    <div className="glass p-5">
+      <div className="flex items-center justify-between mb-4">
         <h3 className="label">Members ({members.length})</h3>
       </div>
 
-      <div className="space-y-1">
+      <div className="space-y-2">
         {members.map((member, index) => {
           const label = getMemberLabel(member.memberId);
           return (
-            <div key={index} className="flex items-center justify-between p-2.5 rounded-md bg-shell-2 border border-shell-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded bg-action/10 flex items-center justify-center">
-                  <span className="text-[10px] font-medium text-action">{label.charAt(0)}</span>
+            <div key={index} className="glass-subtle p-3 flex items-center justify-between hover:border-white/[0.08] transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent/20 to-blue/20 border border-accent/20 flex items-center justify-center">
+                  <span className="text-xs font-medium text-accent">{label.charAt(0)}</span>
                 </div>
                 <div>
-                  <p className="text-xs text-cloud font-medium">{label}</p>
+                  <p className="text-sm text-white font-medium">{label}</p>
                   <p className="mono-data text-[10px]">{member.memberId.slice(0, 8)}...</p>
                 </div>
               </div>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                member.isActive ? 'bg-mint/10 text-mint' : 'bg-shell-4 text-ash'
+              <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                member.isActive ? 'bg-mint/10 text-mint' : 'bg-white/[0.04] text-ash'
               }`}>
                 {member.isActive ? 'Active' : 'Removed'}
               </span>
@@ -38,7 +38,7 @@ export default function MemberList({ members, onAddMember }: MemberListProps) {
       </div>
 
       {onAddMember && (
-        <button onClick={onAddMember} className="w-full mt-3 btn-ghost text-xs">
+        <button onClick={onAddMember} className="btn-secondary w-full mt-4">
           + Add Member
         </button>
       )}

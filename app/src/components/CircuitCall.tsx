@@ -27,19 +27,19 @@ export default function CircuitCall({ connected, onCallCircuit, circuitResult, o
   };
 
   return (
-    <div className="card">
-      <h3 className="label mb-3">Circuit Call</h3>
+    <div className="glass p-5">
+      <h3 className="label mb-4">Circuit Call</h3>
 
-      <div className="space-y-2.5">
-        <div className="flex flex-wrap gap-1">
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-1.5">
           {CIRCUITS.map((circuit) => (
             <button
               key={circuit.id}
               onClick={() => { setSelectedCircuit(circuit); setArgs({}); onReset(); }}
-              className={`px-2.5 py-1 rounded text-[11px] font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 selectedCircuit.id === circuit.id
-                  ? 'bg-action/10 border border-action/30 text-action'
-                  : 'bg-shell-2 border border-shell-4 text-ash hover:text-slate'
+                  ? 'bg-accent text-white shadow-glow-accent'
+                  : 'bg-white/[0.04] border border-white/[0.06] text-ash hover:text-white hover:bg-white/[0.06]'
               }`}
             >
               {circuit.label}
@@ -54,7 +54,7 @@ export default function CircuitCall({ connected, onCallCircuit, circuitResult, o
             value={args[arg.key] || ''}
             onChange={(e) => setArgs({ ...args, [arg.key]: e.target.value })}
             placeholder={arg.placeholder}
-            className="input-shell text-xs"
+            className="input-glass text-sm"
           />
         ))}
 
@@ -63,19 +63,19 @@ export default function CircuitCall({ connected, onCallCircuit, circuitResult, o
           disabled={circuitResult.status === 'proving' || circuitResult.status === 'submitting'}
           className="btn-primary w-full disabled:opacity-40"
         >
-          {circuitResult.status === 'proving' ? 'Generating...' : circuitResult.status === 'submitting' ? 'Submitting...' : 'Call Circuit'}
+          {circuitResult.status === 'proving' ? 'Generating Proof...' : circuitResult.status === 'submitting' ? 'Submitting...' : 'Call Circuit'}
         </button>
 
         {circuitResult.status === 'success' && circuitResult.txHash && (
-          <div className="p-2.5 rounded-md bg-mint/5 border border-mint/20">
-            <p className="text-xs text-mint font-medium">Success</p>
+          <div className="glass-subtle p-3 border-mint/20">
+            <p className="text-sm text-mint font-medium">Success</p>
             <p className="mono-data text-[10px] mt-1 break-all">{circuitResult.txHash}</p>
           </div>
         )}
 
         {circuitResult.status === 'error' && (
-          <div className="p-2.5 rounded-md bg-red-500/5 border border-red-500/20">
-            <p className="text-xs text-red-400 font-medium">Error</p>
+          <div className="glass-subtle p-3 border-red-500/20">
+            <p className="text-sm text-red-400 font-medium">Error</p>
             <p className="mono-data text-[10px] mt-1">{circuitResult.error}</p>
           </div>
         )}

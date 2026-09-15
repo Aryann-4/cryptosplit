@@ -11,16 +11,16 @@ interface BalanceViewProps {
 export default function BalanceView({ netDebts, members, currentMemberId }: BalanceViewProps) {
   if (netDebts.length === 0) {
     return (
-      <div className="card text-center py-8">
-        <p className="text-xs text-ash">No outstanding balances</p>
+      <div className="glass text-center py-10">
+        <p className="text-sm text-ash">No outstanding balances</p>
       </div>
     );
   }
 
   return (
-    <div className="card">
-      <h3 className="label mb-3">Balances</h3>
-      <div className="space-y-1.5">
+    <div className="glass p-5">
+      <h3 className="label mb-4">Balances</h3>
+      <div className="space-y-2">
         {netDebts.map((debt, i) => {
           const debtorLabel = getMemberLabel(debt.debtorId);
           const creditorLabel = getMemberLabel(debt.creditorId);
@@ -28,25 +28,31 @@ export default function BalanceView({ netDebts, members, currentMemberId }: Bala
           const isCurrentCreditor = currentMemberId && bytesToHex(debt.creditorId) === bytesToHex(currentMemberId);
 
           return (
-            <div key={i} className="flex items-center justify-between p-2.5 rounded-md bg-shell-2 border border-shell-4">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-red-500/10 flex items-center justify-center">
-                  <span className="text-[10px] font-medium text-red-400">{debtorLabel.charAt(0)}</span>
+            <div key={i} className="glass-subtle p-3 hover:border-white/[0.08] transition-colors">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                    <span className="text-[10px] font-medium text-red-400">{debtorLabel.charAt(0)}</span>
+                  </div>
+                  <span className={`text-sm ${isCurrentDebtor ? 'text-red-400 font-medium' : 'text-ash'}`}>
+                    {debtorLabel}
+                  </span>
                 </div>
-                <span className={`text-xs ${isCurrentDebtor ? 'text-red-400 font-medium' : 'text-ash'}`}>
-                  {debtorLabel}
-                </span>
-              </div>
-              <span className="text-[10px] text-shell-5">owes</span>
-              <div className="flex items-center gap-2">
-                <span className={`text-xs ${isCurrentCreditor ? 'text-mint font-medium' : 'text-ash'}`}>
-                  {creditorLabel}
-                </span>
-                <div className="w-6 h-6 rounded bg-mint/10 flex items-center justify-center">
-                  <span className="text-[10px] font-medium text-mint">{creditorLabel.charAt(0)}</span>
+                <span className="text-[10px] text-surface-5">owes</span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-sm ${isCurrentCreditor ? 'text-mint font-medium' : 'text-ash'}`}>
+                    {creditorLabel}
+                  </span>
+                  <div className="w-7 h-7 rounded-lg bg-mint/10 border border-mint/20 flex items-center justify-center">
+                    <span className="text-[10px] font-medium text-mint">{creditorLabel.charAt(0)}</span>
+                  </div>
                 </div>
               </div>
-              <span className="text-sm font-medium text-cloud ml-3">${(Number(debt.amount) / 100).toFixed(2)}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-lg font-bold text-white">${(Number(debt.amount) / 100).toFixed(2)}</span>
+                {isCurrentDebtor && <span className="text-[10px] text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">You owe</span>}
+                {isCurrentCreditor && <span className="text-[10px] text-mint bg-mint/10 px-2 py-0.5 rounded-full">You are owed</span>}
+              </div>
             </div>
           );
         })}

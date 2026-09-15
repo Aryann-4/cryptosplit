@@ -34,66 +34,108 @@ export default function Home() {
   const groups = getAllGroups();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {!wallet.connected ? (
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Hero */}
-          <div className="card p-8 sm:p-12 text-center">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-shell-4 bg-shell-2 mb-6">
-              <span className="w-1.5 h-1.5 bg-mint rounded-full" />
-              <span className="label !text-[10px]">Live on Midnight Preprod</span>
-            </div>
+          <div className="glass p-8 sm:p-12 lg:p-16 text-center relative overflow-hidden">
+            {/* Decorative gradient */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-accent/[0.06] rounded-full blur-[100px] pointer-events-none" />
 
-            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-cloud mb-3">
-              Split expenses.
-              <br />
-              <span className="text-action">Keep them private.</span>
-            </h1>
+            <div className="relative">
+              {/* Status pill */}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-subtle mb-8">
+                <span className="w-2 h-2 bg-mint rounded-full animate-pulse" />
+                <span className="label !text-[10px] !tracking-[0.15em]">Live on Midnight Preprod</span>
+              </div>
 
-            <p className="text-sm text-ash max-w-md mx-auto mb-8 leading-relaxed">
-              Zero-knowledge bill splitting on Midnight Network. Your wallet address, names, and spending habits never touch the blockchain.
-            </p>
+              {/* Headline */}
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-4 leading-[1.1]">
+                Split expenses.
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent via-blue to-accent">
+                  Keep them private.
+                </span>
+              </h1>
 
-            <WalletConnect
-              onConnect={wallet.connect}
-              connected={wallet.connected}
-              connecting={wallet.connecting}
-              address={wallet.address}
-              shieldedAddress={wallet.shieldedAddress}
-              onDisconnect={wallet.disconnect}
-              error={wallet.error}
-            />
+              <p className="text-base sm:text-lg text-ash max-w-lg mx-auto mb-10 leading-relaxed">
+                Zero-knowledge bill splitting on Midnight Network. Your wallet address, names, and spending habits never touch the blockchain.
+              </p>
 
-            {/* Stats */}
-            <div className="mt-10 flex justify-center gap-10">
-              {[
-                { value: '0', label: 'Addresses On-Chain' },
-                { value: 'ZK', label: 'Proofs Generated' },
-                { value: '100%', label: 'Private' },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <div className="text-xl font-semibold text-cloud">{stat.value}</div>
-                  <div className="label !text-[9px] mt-1">{stat.label}</div>
-                </div>
-              ))}
+              {/* CTA */}
+              <div className="flex justify-center mb-12">
+                <WalletConnect
+                  onConnect={wallet.connect}
+                  connected={wallet.connected}
+                  connecting={wallet.connecting}
+                  address={wallet.address}
+                  shieldedAddress={wallet.shieldedAddress}
+                  onDisconnect={wallet.disconnect}
+                  error={wallet.error}
+                />
+              </div>
+
+              {/* Stats */}
+              <div className="flex justify-center gap-12 sm:gap-16">
+                {[
+                  { value: '0', label: 'Addresses On-Chain' },
+                  { value: 'ZK', label: 'Proofs Generated' },
+                  { value: '100%', label: 'Private' },
+                ].map((stat) => (
+                  <div key={stat.label}>
+                    <div className="text-2xl sm:text-3xl font-bold text-white">{stat.value}</div>
+                    <div className="label !text-[9px] mt-1">{stat.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* How It Works */}
           <div>
-            <h2 className="label mb-4">How it works</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <h2 className="label mb-5">How it works</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { step: '01', title: 'Connect Wallet', desc: 'Connect your Midnight Lace wallet. Your address stays private.' },
-                { step: '02', title: 'Create Group', desc: 'Add members. Each gets a cryptographic identity hash.' },
-                { step: '03', title: 'Settle with ZK', desc: 'Prove you paid without revealing who you are.' },
+                {
+                  step: '01',
+                  title: 'Connect Wallet',
+                  desc: 'Connect your Midnight Lace wallet. Your address stays private.',
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                  ),
+                },
+                {
+                  step: '02',
+                  title: 'Create Group',
+                  desc: 'Add members. Each gets a cryptographic identity hash.',
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  ),
+                },
+                {
+                  step: '03',
+                  title: 'Settle with ZK',
+                  desc: 'Prove you paid without revealing who you are.',
+                  icon: (
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  ),
+                },
               ].map((item) => (
-                <div key={item.step} className="card hover:border-shell-5 transition-colors">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="mono-data text-action">{item.step}</span>
-                    <div className="h-px flex-1 bg-shell-4" />
+                <div key={item.step} className="glass p-6 hover:border-white/[0.1] transition-all group">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="mono-data text-accent">{item.step}</span>
+                    <div className="h-px flex-1 bg-white/[0.06]" />
+                    <div className="w-9 h-9 rounded-lg bg-accent/10 border border-accent/20 flex items-center justify-center text-accent group-hover:bg-accent/20 transition-colors">
+                      {item.icon}
+                    </div>
                   </div>
-                  <h3 className="text-sm font-medium text-cloud mb-1">{item.title}</h3>
+                  <h3 className="text-sm font-semibold text-white mb-1.5">{item.title}</h3>
                   <p className="text-xs text-ash leading-relaxed">{item.desc}</p>
                 </div>
               ))}
@@ -105,12 +147,12 @@ export default function Home() {
       ) : (
         <>
           {/* Connected Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-lg font-semibold text-cloud">Your Groups</h1>
-              <p className="mono-data mt-0.5">{groups.length} group{groups.length !== 1 ? 's' : ''}</p>
+              <h1 className="text-xl font-bold text-white">Your Groups</h1>
+              <p className="mono-data text-[11px] mt-1">{groups.length} group{groups.length !== 1 ? 's' : ''}</p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <WalletConnect
                 onConnect={wallet.connect}
                 connected={wallet.connected}
@@ -128,32 +170,34 @@ export default function Home() {
 
           {/* Create Modal */}
           {showCreate && (
-            <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-              <div className="card w-full max-w-sm animate-slide-up">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-sm font-semibold text-cloud">New Group</h2>
-                  <button onClick={() => { setShowCreate(false); setMemberInputs(['']); }} className="text-ash hover:text-cloud transition-colors">
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+              <div className="glass w-full max-w-md p-6 animate-slide-up">
+                <div className="flex items-center justify-between mb-5">
+                  <h2 className="text-lg font-semibold text-white">New Group</h2>
+                  <button onClick={() => { setShowCreate(false); setMemberInputs(['']); }} className="w-8 h-8 rounded-lg bg-white/[0.04] flex items-center justify-center text-ash hover:text-white hover:bg-white/[0.08] transition-all">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
 
-                <div className="space-y-2 mb-3">
+                <div className="space-y-2.5 mb-4">
                   {memberInputs.map((input, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <span className="mono-data w-5 text-center">{index + 1}</span>
+                    <div key={index} className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-accent/10 flex items-center justify-center flex-shrink-0">
+                        <span className="mono-data text-[10px] text-accent">{index + 1}</span>
+                      </div>
                       <input
                         type="text"
                         value={input}
                         onChange={(e) => updateMemberInput(index, e.target.value)}
                         placeholder={`Member ${index + 1}`}
-                        className="input-shell flex-1"
+                        className="input-glass flex-1"
                         autoFocus={index === memberInputs.length - 1}
                       />
                       {memberInputs.length > 1 && (
                         <button onClick={() => removeMemberInput(index)} className="text-ash hover:text-red-400 transition-colors p-1">
-                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
                         </button>
@@ -162,12 +206,12 @@ export default function Home() {
                   ))}
                 </div>
 
-                <button onClick={addMemberInput} className="w-full border border-dashed border-shell-4 rounded-md py-2 text-xs text-ash hover:text-action hover:border-action/30 transition-all mb-4">
+                <button onClick={addMemberInput} className="w-full border border-dashed border-white/[0.08] rounded-lg py-2.5 text-sm text-ash hover:text-accent hover:border-accent/30 transition-all mb-5">
                   + Add Member
                 </button>
 
-                <div className="flex gap-2">
-                  <button onClick={handleCreateGroup} disabled={!memberInputs.some((l) => l.trim())} className="btn-primary flex-1 disabled:opacity-40">Create</button>
+                <div className="flex gap-3">
+                  <button onClick={handleCreateGroup} disabled={!memberInputs.some((l) => l.trim())} className="btn-primary flex-1 disabled:opacity-40">Create Group</button>
                   <button onClick={() => { setShowCreate(false); setMemberInputs(['']); }} className="btn-ghost">Cancel</button>
                 </div>
               </div>
@@ -176,22 +220,22 @@ export default function Home() {
 
           {/* Groups Grid */}
           {groups.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {groups.map((group) => (
                 <button
                   key={group.contractAddress}
                   onClick={() => navigate(`/group/${group.contractAddress}`)}
-                  className="card text-left hover:border-shell-5 transition-colors group"
+                  className="glass p-5 text-left hover:border-white/[0.1] hover:shadow-card-hover transition-all group"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="w-9 h-9 rounded-md bg-action flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">{group.members.length}</span>
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-blue flex items-center justify-center shadow-glow-accent">
+                      <span className="text-white font-bold">{group.members.length}</span>
                     </div>
-                    <svg className="w-4 h-4 text-shell-5 group-hover:text-ash transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg className="w-5 h-5 text-surface-4 group-hover:text-ash transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </div>
-                  <p className="text-sm font-medium text-cloud mb-1">Expense Group</p>
+                  <p className="text-sm font-semibold text-white mb-1">Expense Group</p>
                   <div className="flex items-center justify-between">
                     <span className="text-xs text-ash">{group.members.length} members</span>
                     <span className="mono-data text-[10px]">{group.contractAddress.slice(0, 8)}...</span>
@@ -200,9 +244,14 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="card text-center py-12">
-              <p className="text-sm text-ash mb-3">No groups yet</p>
-              <button onClick={() => setShowCreate(true)} className="text-action text-sm font-medium hover:text-action-light transition-colors">
+            <div className="glass text-center py-16">
+              <div className="w-12 h-12 rounded-xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <p className="text-sm text-ash mb-4">No groups yet</p>
+              <button onClick={() => setShowCreate(true)} className="btn-primary">
                 Create your first group
               </button>
             </div>

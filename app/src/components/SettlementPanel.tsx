@@ -19,40 +19,43 @@ export default function SettlementPanel({ netDebts, members, currentMemberId, on
   if (myDebts.length === 0) return null;
 
   return (
-    <div className="card">
-      <h3 className="label mb-3">Settle Up</h3>
+    <div className="glass p-5">
+      <h3 className="label mb-4">Settle Up</h3>
 
-      <div className="p-3 rounded-md bg-shell-2 border border-shell-4 mb-3">
+      {/* Total card */}
+      <div className="glass-subtle p-4 mb-4">
         <div className="label !text-[9px] mb-1">Total you owe</div>
-        <div className="text-xl font-semibold text-cloud">${(Number(totalOwed) / 100).toFixed(2)}</div>
+        <div className="text-2xl font-bold text-white">${(Number(totalOwed) / 100).toFixed(2)}</div>
       </div>
 
-      <div className="space-y-1.5 mb-3">
+      {/* Per-creditor */}
+      <div className="space-y-2 mb-4">
         {myDebts.map((debt, i) => {
           const creditorLabel = getMemberLabel(debt.creditorId);
           return (
-            <div key={i} className="flex items-center justify-between p-2.5 rounded-md bg-shell-2 border border-shell-4">
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded bg-mint/10 flex items-center justify-center">
-                  <span className="text-[10px] font-medium text-mint">{creditorLabel.charAt(0)}</span>
+            <div key={i} className="glass-subtle p-3 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-mint/10 border border-mint/20 flex items-center justify-center">
+                  <span className="text-xs font-medium text-mint">{creditorLabel.charAt(0)}</span>
                 </div>
                 <div>
-                  <p className="text-xs text-cloud font-medium">{creditorLabel}</p>
+                  <p className="text-sm text-white font-medium">{creditorLabel}</p>
                   <p className="mono-data text-[10px]">${(Number(debt.amount) / 100).toFixed(2)}</p>
                 </div>
               </div>
               <button
                 onClick={() => onSettle(debt.creditorId, debt.amount)}
                 disabled={settling}
-                className="btn-primary !py-1 !px-3 text-xs disabled:opacity-40"
+                className="btn-primary !py-2.5 !px-5 text-sm disabled:opacity-40"
               >
-                {settling ? '...' : 'Pay'}
+                {settling ? 'Paying...' : 'Pay'}
               </button>
             </div>
           );
         })}
       </div>
 
+      {/* Settle all */}
       <button
         onClick={async () => {
           for (const debt of myDebts) {
@@ -60,7 +63,7 @@ export default function SettlementPanel({ netDebts, members, currentMemberId, on
           }
         }}
         disabled={settling}
-        className="btn-ghost w-full text-xs disabled:opacity-40"
+        className="btn-secondary w-full disabled:opacity-40"
       >
         {settling ? 'Processing...' : `Settle All ($${(Number(totalOwed) / 100).toFixed(2)})`}
       </button>
