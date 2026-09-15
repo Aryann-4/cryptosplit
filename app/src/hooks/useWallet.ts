@@ -49,16 +49,29 @@ export function useWallet() {
     error: null,
   });
 
-  const connect = useCallback(async () => {
-    setState((s) => ({ ...s, connecting: true, error: null }));
+  const connect = useCallback(async (network?: string) => {
+    const net = network || getNetworkId();
+    localStorage.setItem('midnight-network', net);
+    setState((s) => ({ ...s, connecting: true, error: null, networkId: net }));
+
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Wallet connection timed out. Is Lace installed and unlocked?')), 15000),
+    );
+
     try {
       const wallet = selectWallet();
       if (!wallet) {
         throw new Error('No Midnight wallet found. Please install the Lace wallet extension.');
       }
 
-      const connectedApi: ConnectedAPI = await wallet.connect(getNetworkId());
-      const connectionStatus = await connectedApi.getConnectionStatus();
+      const connectedApi: ConnectedAPI = await Promise.race([
+        wallet.connect(net),
+        timeout,
+      ]);
+      const connectionStatus = await Promise.race([
+        connectedApi.getConnectionStatus(),
+        timeout,
+      ]);
       if (connectionStatus.status !== 'connected') {
         throw new Error('Wallet connection was not approved.');
       }
@@ -88,7 +101,7 @@ export function useWallet() {
         coinPublicKeyBytes: coinPubBytes,
         walletProvider: connectedApi,
         connectedApi,
-        networkId: getNetworkId(),
+        networkId: net,
         error: null,
       });
     } catch (err) {
