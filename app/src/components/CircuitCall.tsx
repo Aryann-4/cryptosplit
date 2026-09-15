@@ -27,7 +27,7 @@ export default function CircuitCall({ connected, onCallCircuit, circuitResult, o
   };
 
   return (
-    <div className="glass p-5 animate-slide-up">
+    <div className="glass p-5 animate-slide-left">
       <h3 className="label mb-4">Circuit Call</h3>
 
       <div className="space-y-3">

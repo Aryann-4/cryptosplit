@@ -41,7 +41,7 @@ export default function ExpenseForm({ members, onSubmit }: ExpenseFormProps) {
     : '0.00';
 
   return (
-    <div className="glass p-5 animate-slide-up">
+    <div className="glass p-5 animate-blur-focus">
       <h3 className="label mb-4">Add Expense</h3>
 
       <div className="space-y-3">
@@ -71,7 +71,7 @@ export default function ExpenseForm({ members, onSubmit }: ExpenseFormProps) {
               <button onClick={deselectAll} className="text-xs text-surface-4 hover:text-ash transition-colors">None</button>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2 stagger-grid">
             {members.map((member, index) => (
               <button
                 key={index}
@@ -83,7 +83,7 @@ export default function ExpenseForm({ members, onSubmit }: ExpenseFormProps) {
                 }`}
               >
                 <div className={`w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0 transition-all duration-300 ${
-                  selectedParticipants.has(index) ? 'bg-gold shadow-[0_0_12px_rgba(251,191,36,0.3)]' : 'bg-white/[0.06]'
+                  selectedParticipants.has(index) ? 'bg-gold shadow-[0_0_12px_rgba(251,191,36,0.3)] scale-110' : 'bg-white/[0.06]'
                 }`}>
                   {selectedParticipants.has(index) && (
                     <svg className="w-3 h-3 text-[#0a0a0f]" fill="currentColor" viewBox="0 0 20 20">

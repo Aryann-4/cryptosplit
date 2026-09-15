@@ -8,22 +8,21 @@ interface MemberListProps {
 
 export default function MemberList({ members, onAddMember }: MemberListProps) {
   return (
-    <div className="glass p-5 animate-fade-in">
+    <div className="glass p-5 animate-blur-focus">
       <div className="flex items-center justify-between mb-4">
         <h3 className="label">Members ({members.length})</h3>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-2 stagger-grid">
         {members.map((member, index) => {
           const label = getMemberLabel(member.memberId);
           return (
             <div
               key={index}
-              className="glass-subtle p-3 flex items-center justify-between hover:border-white/[0.1] hover:shadow-card-hover transition-all duration-300 animate-slide-up"
-              style={{ animationDelay: `${index * 0.05}s` }}
+              className="glass-subtle p-3 flex items-center justify-between tilt-card hover:border-white/[0.1] transition-all duration-300"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold/20 to-gold-dim/20 border border-gold/20 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-gold/20 to-gold-dim/20 border border-gold/20 flex items-center justify-center hover:scale-110 transition-transform">
                   <span className="text-xs font-medium text-gold">{label.charAt(0)}</span>
                 </div>
                 <div>
@@ -31,8 +30,8 @@ export default function MemberList({ members, onAddMember }: MemberListProps) {
                   <p className="mono-data text-[10px]">{member.memberId.slice(0, 8)}...</p>
                 </div>
               </div>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full ${
-                member.isActive ? 'bg-mint/10 text-mint' : 'bg-white/[0.04] text-ash'
+              <span className={`text-[10px] px-2 py-0.5 rounded-full transition-all ${
+                member.isActive ? 'bg-mint/10 text-mint animate-pulse' : 'bg-white/[0.04] text-ash'
               }`}>
                 {member.isActive ? 'Active' : 'Removed'}
               </span>
@@ -42,7 +41,7 @@ export default function MemberList({ members, onAddMember }: MemberListProps) {
       </div>
 
       {onAddMember && (
-        <button onClick={onAddMember} className="btn-secondary w-full mt-4">
+        <button onClick={onAddMember} className="btn-secondary w-full mt-4 hover:scale-[1.01]">
           + Add Member
         </button>
       )}

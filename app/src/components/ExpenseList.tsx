@@ -17,27 +17,26 @@ function timeAgo(timestamp: number) {
 export default function ExpenseList({ expenses, members }: ExpenseListProps) {
   if (expenses.length === 0) {
     return (
-      <div className="glass text-center py-10 animate-fade-in">
+      <div className="glass text-center py-10 animate-blur-focus">
         <p className="text-sm text-ash">No expenses yet</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-2">
-      {expenses.slice().reverse().map((expense, i) => {
+    <div className="space-y-2 stagger-grid">
+      {expenses.slice().reverse().map((expense) => {
         const payerLabel = getMemberLabel(expense.payer);
         const perPerson = Number(expense.amount) / expense.participants.length / 100;
 
         return (
           <div
             key={expense.id}
-            className="glass p-4 hover:border-white/[0.12] hover:shadow-card-hover transition-all duration-300 animate-slide-up"
-            style={{ animationDelay: `${i * 0.05}s` }}
+            className="glass p-4 tilt-card hover:border-white/[0.12] transition-all duration-300"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold/20 to-gold-dim/20 border border-gold/20 flex items-center justify-center flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold/20 to-gold-dim/20 border border-gold/20 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
                   <span className="text-sm font-medium text-gold">{payerLabel.charAt(0)}</span>
                 </div>
                 <div>

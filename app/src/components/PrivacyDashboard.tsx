@@ -1,9 +1,9 @@
 export default function PrivacyDashboard() {
   return (
-    <div className="glass p-6 animate-slide-up">
+    <div className="glass p-6 animate-blur-focus">
       <h2 className="label mb-5">How Your Privacy Works</h2>
 
-      <div className="space-y-2">
+      <div className="space-y-2 stagger-grid">
         {[
           {
             step: '01',
@@ -29,14 +29,13 @@ export default function PrivacyDashboard() {
             bg: 'bg-mint/10',
             border: 'border-mint/20',
           },
-        ].map((item, i) => (
+        ].map((item) => (
           <div
             key={item.step}
-            className="glass-subtle p-4 hover:border-white/[0.1] hover:shadow-card-hover transition-all duration-300 animate-slide-up"
-            style={{ animationDelay: `${i * 0.1}s` }}
+            className="glass-subtle p-4 tilt-card hover:border-white/[0.1] transition-all duration-300"
           >
             <div className="flex items-start gap-3.5">
-              <div className={`w-8 h-8 rounded-lg ${item.bg} border ${item.border} flex items-center justify-center flex-shrink-0`}>
+              <div className={`w-8 h-8 rounded-lg ${item.bg} border ${item.border} flex items-center justify-center flex-shrink-0 hover:scale-110 transition-transform`}>
                 <span className={`text-[10px] font-medium ${item.color}`}>{item.step}</span>
               </div>
               <div>
@@ -47,7 +46,7 @@ export default function PrivacyDashboard() {
           </div>
         ))}
 
-        <div className="glass-subtle p-4 border-gold/10 relative overflow-hidden">
+        <div className="glass-subtle p-4 border-gold/10 relative overflow-hidden animate-border-glow">
           <div className="absolute top-0 left-0 w-[150px] h-[150px] bg-gold/[0.04] rounded-full blur-[50px] pointer-events-none" />
           <div className="relative">
             <div className="flex items-center gap-2 mb-2">

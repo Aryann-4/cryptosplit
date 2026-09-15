@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import WalletConnect from '../components/WalletConnect.tsx';
 import PrivacyDashboard from '../components/PrivacyDashboard.tsx';
+import CountUp from '../components/CountUp.tsx';
 import { useWallet, createGroupLocal } from '../hooks/useWallet.ts';
 import { createGroup, getAllGroups } from '../store.ts';
 
@@ -38,12 +39,12 @@ export default function Home() {
       {!wallet.connected ? (
         <div className="space-y-8">
           {/* Hero */}
-          <div className="glass p-8 sm:p-12 lg:p-16 text-center relative overflow-hidden">
+          <div className="glass p-8 sm:p-12 lg:p-16 text-center relative overflow-hidden animate-blur-focus">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-gold/[0.06] rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[400px] h-[300px] bg-accent/[0.05] rounded-full blur-[80px] pointer-events-none" />
 
             <div className="relative">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-subtle mb-8 animate-slide-up delay-1">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-subtle mb-8 animate-slide-up delay-1 animate-border-glow">
                 <span className="w-2 h-2 bg-mint rounded-full animate-pulse" />
                 <span className="label !text-[10px] !tracking-[0.15em]">Live on Midnight Preprod</span>
               </div>
@@ -72,13 +73,20 @@ export default function Home() {
 
               <div className="flex justify-center gap-12 sm:gap-16 animate-slide-up delay-5">
                 {[
-                  { value: '0', label: 'Addresses On-Chain' },
-                  { value: 'ZK', label: 'Proofs Generated' },
-                  { value: '100%', label: 'Private' },
+                  { value: 0, label: 'Addresses On-Chain', isNumber: true },
+                  { value: 'ZK', label: 'Proofs Generated', isNumber: false },
+                  { value: 100, label: '% Private', isNumber: true },
                 ].map((stat) => (
                   <div key={stat.label}>
-                    <div className="text-2xl sm:text-3xl font-bold text-white">{stat.value}</div>
-                    <div className="label !text-[9px] mt-1">{stat.label}</div>
+                    <div className="text-2xl sm:text-3xl font-bold text-white">
+                      {stat.isNumber ? (
+                        <CountUp target={stat.value as number} duration={1200} suffix={stat.label.includes('%') ? '%' : ''} />
+                      ) : (
+                        <span className="text-shimmer">{stat.value}</span>
+                      )}
+                    </div>
+                    <div className="label !text-[9px] mt-1">{stat.label.includes('%') ? '' : stat.label}</div>
+                    {stat.label.includes('%') && <div className="label !text-[9px] mt-1">Private</div>}
                   </div>
                 ))}
               </div>
@@ -88,7 +96,7 @@ export default function Home() {
           {/* How It Works */}
           <div className="animate-slide-up delay-3">
             <h2 className="label mb-5">How it works</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 stagger-grid">
               {[
                 {
                   step: '01',
@@ -120,11 +128,10 @@ export default function Home() {
                     </svg>
                   ),
                 },
-              ].map((item, i) => (
+              ].map((item) => (
                 <div
                   key={item.step}
-                  className="glass p-6 group hover:border-white/[0.12] hover:shadow-card-hover hover:scale-[1.02] transition-all duration-300 animate-slide-up"
-                  style={{ animationDelay: `${0.2 + i * 0.1}s` }}
+                  className="glass p-6 tilt-card hover:border-white/[0.12] transition-all duration-300"
                 >
                   <div className="flex items-center gap-3 mb-4">
                     <span className="mono-data text-gold">{item.step}</span>
@@ -183,7 +190,7 @@ export default function Home() {
 
                 <div className="space-y-2.5 mb-4">
                   {memberInputs.map((input, index) => (
-                    <div key={index} className="flex items-center gap-2.5 animate-slide-up" style={{ animationDelay: `${index * 0.05}s` }}>
+                    <div key={index} className="flex items-center gap-2.5 animate-slide-left" style={{ animationDelay: `${index * 0.05}s` }}>
                       <div className="w-7 h-7 rounded-lg bg-gold/10 flex items-center justify-center flex-shrink-0">
                         <span className="mono-data text-[10px] text-gold">{index + 1}</span>
                       </div>
@@ -206,7 +213,7 @@ export default function Home() {
                   ))}
                 </div>
 
-                <button onClick={addMemberInput} className="w-full border border-dashed border-white/[0.08] rounded-xl py-2.5 text-sm text-ash hover:text-gold hover:border-gold/30 transition-all mb-5">
+                <button onClick={addMemberInput} className="w-full border border-dashed border-white/[0.08] rounded-xl py-2.5 text-sm text-ash hover:text-gold hover:border-gold/30 transition-all mb-5 hover:scale-[1.01]">
                   + Add Member
                 </button>
 
@@ -220,16 +227,15 @@ export default function Home() {
 
           {/* Groups Grid */}
           {groups.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {groups.map((group, i) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 stagger-grid">
+              {groups.map((group) => (
                 <button
                   key={group.contractAddress}
                   onClick={() => navigate(`/group/${group.contractAddress}`)}
-                  className="glass p-5 text-left hover:border-white/[0.12] hover:shadow-card-hover hover:scale-[1.02] transition-all duration-300 group animate-slide-up"
-                  style={{ animationDelay: `${i * 0.1}s` }}
+                  className="glass p-5 text-left tilt-card hover:border-white/[0.12] transition-all duration-300 group"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center shadow-[0_0_20px_rgba(251,191,36,0.3)] group-hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] transition-shadow duration-300">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold to-gold-dim flex items-center justify-center shadow-[0_0_20px_rgba(251,191,36,0.3)] group-hover:shadow-[0_0_30px_rgba(251,191,36,0.5)] transition-shadow duration-300 group-hover:scale-110">
                       <span className="text-white font-bold">{group.members.length}</span>
                     </div>
                     <svg className="w-5 h-5 text-surface-4 group-hover:text-gold group-hover:translate-x-1 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -245,8 +251,8 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="glass text-center py-16 animate-fade-in">
-              <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center mx-auto mb-4 pulse-glow">
+            <div className="glass text-center py-16 animate-blur-focus">
+              <div className="w-12 h-12 rounded-xl bg-gold/10 border border-gold/20 flex items-center justify-center mx-auto mb-4 pulse-glow animate-border-glow">
                 <svg className="w-6 h-6 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                 </svg>

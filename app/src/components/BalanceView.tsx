@@ -11,7 +11,7 @@ interface BalanceViewProps {
 export default function BalanceView({ netDebts, members, currentMemberId }: BalanceViewProps) {
   if (netDebts.length === 0) {
     return (
-      <div className="glass text-center py-10 animate-fade-in">
+      <div className="glass text-center py-10 animate-blur-focus">
         <p className="text-sm text-ash">No outstanding debts</p>
         <p className="mono-data text-[10px] mt-1 text-surface-4">Add expenses to see settlements</p>
       </div>
@@ -19,9 +19,9 @@ export default function BalanceView({ netDebts, members, currentMemberId }: Bala
   }
 
   return (
-    <div className="glass p-5 animate-fade-in">
+    <div className="glass p-5 animate-blur-focus">
       <h3 className="label mb-4">Balances</h3>
-      <div className="space-y-2">
+      <div className="space-y-2 stagger-grid">
         {netDebts.map((debt, i) => {
           const debtorLabel = getMemberLabel(debt.debtorId);
           const creditorLabel = getMemberLabel(debt.creditorId);
@@ -31,8 +31,7 @@ export default function BalanceView({ netDebts, members, currentMemberId }: Bala
           return (
             <div
               key={i}
-              className="glass-subtle p-3 hover:border-white/[0.1] hover:shadow-card-hover transition-all duration-300 animate-slide-up"
-              style={{ animationDelay: `${i * 0.05}s` }}
+              className="glass-subtle p-3 tilt-card hover:border-white/[0.1] transition-all duration-300"
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
@@ -55,8 +54,8 @@ export default function BalanceView({ netDebts, members, currentMemberId }: Bala
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-lg font-bold text-white">${(Number(debt.amount) / 100).toFixed(2)}</span>
-                {isCurrentDebtor && <span className="text-[10px] text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full">You owe</span>}
-                {isCurrentCreditor && <span className="text-[10px] text-mint bg-mint/10 px-2 py-0.5 rounded-full">You are owed</span>}
+                {isCurrentDebtor && <span className="text-[10px] text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full animate-pulse">You owe</span>}
+                {isCurrentCreditor && <span className="text-[10px] text-mint bg-mint/10 px-2 py-0.5 rounded-full animate-pulse">You are owed</span>}
               </div>
             </div>
           );

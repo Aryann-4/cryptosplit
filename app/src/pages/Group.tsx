@@ -185,15 +185,22 @@ export default function Group() {
         </div>
       )}
 
-      <div className="flex gap-1 p-1 glass-subtle animate-slide-up delay-2">
+      <div className="flex gap-1 p-1 glass-subtle animate-slide-up delay-2 relative">
+        <div
+          className="absolute top-1 bottom-1 rounded-full bg-gold shadow-[0_0_16px_rgba(251,191,36,0.3)] tab-indicator"
+          style={{
+            width: 'calc(33.333% - 2.67px)',
+            transform: `translateX(${activeTab === 'expenses' ? '0%' : activeTab === 'balances' ? '100%' : '200%'})`,
+          }}
+        />
         {(['expenses', 'balances', 'members'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`flex-1 py-2.5 px-4 rounded-full text-sm font-medium transition-all duration-300 ${
+            className={`relative z-10 flex-1 py-2.5 px-4 rounded-full text-sm font-medium transition-all duration-300 ${
               activeTab === tab
-                ? 'bg-gold text-[#0a0a0f] shadow-[0_0_16px_rgba(251,191,36,0.3)]'
-                : 'text-ash hover:text-white hover:bg-white/[0.04]'
+                ? 'text-[#0a0a0f]'
+                : 'text-ash hover:text-white'
             }`}
           >
             {tab.charAt(0).toUpperCase() + tab.slice(1)}

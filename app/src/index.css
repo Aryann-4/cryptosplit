@@ -371,6 +371,212 @@ body {
 }
 
 /* ═══════════════════════════════════════════
+   LOGO ANIMATIONS
+   ═══════════════════════════════════════════ */
+
+@keyframes shieldPulse {
+  0%, 100% { transform: scale(1); filter: url(#shieldGlow) brightness(1); }
+  50% { transform: scale(1.04); filter: url(#shieldGlow) brightness(1.15); }
+}
+
+@keyframes boltFlicker {
+  0%, 100% { opacity: 1; }
+  30% { opacity: 0.85; }
+  32% { opacity: 1; }
+  50% { opacity: 0.9; }
+  52% { opacity: 1; }
+  80% { opacity: 0.95; }
+}
+
+@keyframes splitPulse {
+  0%, 100% { stroke-opacity: 0.25; stroke-width: 0.8; }
+  50% { stroke-opacity: 0.5; stroke-width: 1; }
+}
+
+@keyframes ringRotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes orbitDot {
+  from { transform: rotate(0deg) translateX(22px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(22px) rotate(-360deg); }
+}
+
+/* ═══════════════════════════════════════════
+   COUNTER ANIMATION
+   ═══════════════════════════════════════════ */
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.count-enter {
+  animation: countUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ═══════════════════════════════════════════
+   CARD TILT
+   ═══════════════════════════════════════════ */
+
+.tilt-card {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.tilt-card:hover {
+  transform: perspective(800px) rotateX(2deg) rotateY(-2deg) scale(1.01);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+/* ═══════════════════════════════════════════
+   BLUR FOCUS ENTRANCE
+   ═══════════════════════════════════════════ */
+
+@keyframes blurFocus {
+  from { opacity: 0; filter: blur(8px); transform: scale(0.97); }
+  to { opacity: 1; filter: blur(0); transform: scale(1); }
+}
+
+.animate-blur-focus {
+  animation: blurFocus 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ═══════════════════════════════════════════
+   SLIDE-IN VARIANTS
+   ═══════════════════════════════════════════ */
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-left {
+  animation: slideInLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-slide-right {
+  animation: slideInRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-slide-down {
+  animation: slideInDown 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ═══════════════════════════════════════════
+   RIPPLE EFFECT
+   ═══════════════════════════════════════════ */
+
+.btn-primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(0);
+  animation: rippleExpand 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes rippleExpand {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════
+   TAB SLIDE INDICATOR
+   ═══════════════════════════════════════════ */
+
+.tab-indicator {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ═══════════════════════════════════════════
+   PARTICLE FLOAT
+   ═══════════════════════════════════════════ */
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(251, 191, 36, 0.4);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+@keyframes particleFloat {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-120px) translateX(30px) scale(0); opacity: 0; }
+}
+
+/* ═══════════════════════════════════════════
+   TEXT SHIMMER
+   ═══════════════════════════════════════════ */
+
+@keyframes textShimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.text-shimmer {
+  background: linear-gradient(90deg, #f0f0f5 0%, #fbbf24 25%, #f0f0f5 50%, #fbbf24 75%, #f0f0f5 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textShimmer 6s linear infinite;
+}
+
+/* ═══════════════════════════════════════════
+   BORDER GLOW
+   ═══════════════════════════════════════════ */
+
+@keyframes borderGlow {
+  0%, 100% { border-color: rgba(251, 191, 36, 0.15); }
+  50% { border-color: rgba(251, 191, 36, 0.35); }
+}
+
+.animate-border-glow {
+  animation: borderGlow 3s ease-in-out infinite;
+}
+
+/* ═══════════════════════════════════════════
+   STAGGER GRID
+   ═══════════════════════════════════════════ */
+
+.stagger-grid > * {
+  opacity: 0;
+  animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.stagger-grid > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger-grid > *:nth-child(2) { animation-delay: 0.1s; }
+.stagger-grid > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger-grid > *:nth-child(4) { animation-delay: 0.2s; }
+.stagger-grid > *:nth-child(5) { animation-delay: 0.25s; }
+.stagger-grid > *:nth-child(6) { animation-delay: 0.3s; }
+.stagger-grid > *:nth-child(7) { animation-delay: 0.35s; }
+.stagger-grid > *:nth-child(8) { animation-delay: 0.4s; }
+.stagger-grid > *:nth-child(9) { animation-delay: 0.45s; }
+.stagger-grid > *:nth-child(10) { animation-delay: 0.5s; }
+
+/* ═══════════════════════════════════════════
    SHIMMER
    ═══════════════════════════════════════════ */
 

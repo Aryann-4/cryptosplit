@@ -19,17 +19,17 @@ export default function SettlementPanel({ netDebts, members, currentMemberId, on
   if (!currentMemberId) return null;
 
   return (
-    <div className="glass p-5 animate-slide-up">
+    <div className="glass p-5 animate-slide-right">
       <h3 className="label mb-4">Settle Up</h3>
 
       {myDebts.length === 0 ? (
-        <div className="glass-subtle p-4 text-center">
+        <div className="glass-subtle p-4 text-center animate-blur-focus">
           <p className="text-sm text-ash">No outstanding debts</p>
           <p className="mono-data text-[10px] mt-1 text-surface-4">Add expenses to see settlements</p>
         </div>
       ) : (
         <>
-          <div className="glass-subtle p-4 mb-4 relative overflow-hidden">
+          <div className="glass-subtle p-4 mb-4 relative overflow-hidden animate-border-glow">
             <div className="absolute top-0 right-0 w-[100px] h-[100px] bg-gold/[0.06] rounded-full blur-[40px] pointer-events-none" />
             <div className="relative">
               <div className="label !text-[9px] mb-1">Total you owe</div>
@@ -37,11 +37,11 @@ export default function SettlementPanel({ netDebts, members, currentMemberId, on
             </div>
           </div>
 
-          <div className="space-y-2 mb-4">
+          <div className="space-y-2 mb-4 stagger-grid">
             {myDebts.map((debt, i) => {
               const creditorLabel = getMemberLabel(debt.creditorId);
               return (
-                <div key={i} className="glass-subtle p-3 flex items-center justify-between hover:border-white/[0.08] transition-all duration-300">
+                <div key={i} className="glass-subtle p-3 flex items-center justify-between tilt-card hover:border-white/[0.08] transition-all duration-300">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-gold/10 border border-gold/20 flex items-center justify-center">
                       <span className="text-xs font-medium text-gold">{creditorLabel.charAt(0)}</span>
@@ -70,7 +70,7 @@ export default function SettlementPanel({ netDebts, members, currentMemberId, on
               }
             }}
             disabled={settling}
-            className="btn-secondary w-full disabled:opacity-40"
+            className="btn-secondary w-full disabled:opacity-40 hover:scale-[1.01]"
           >
             {settling ? 'Processing...' : `Settle All ($${(Number(totalOwed) / 100).toFixed(2)})`}
           </button>
