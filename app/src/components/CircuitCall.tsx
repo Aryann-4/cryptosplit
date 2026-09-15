@@ -66,10 +66,15 @@ export default function CircuitCall({ connected, onCallCircuit, circuitResult, o
           {circuitResult.status === 'proving' ? 'Generating Proof...' : circuitResult.status === 'submitting' ? 'Submitting...' : 'Call Circuit'}
         </button>
 
-        {circuitResult.status === 'success' && circuitResult.txHash && (
+        {circuitResult.status === 'success' && (
           <div className="glass-subtle p-3 border-mint/20 animate-scale-in">
             <p className="text-sm text-mint font-medium">Success</p>
-            <p className="mono-data text-[10px] mt-1 break-all">{circuitResult.txHash}</p>
+            {circuitResult.txHash && (
+              <p className="mono-data text-[10px] mt-1 break-all">{circuitResult.txHash}</p>
+            )}
+            {!circuitResult.txHash && (
+              <p className="mono-data text-[10px] mt-1">Circuit call completed (demo mode)</p>
+            )}
           </div>
         )}
 
